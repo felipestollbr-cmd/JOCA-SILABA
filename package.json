@@ -1,0 +1,36 @@
+{
+  "name": "silaba-aventura-com-o-joca-backend",
+  "version": "1.0.0",
+  "description": "Backend para Sílaba Aventura com o Joca - Jogo educacional de sílabas",
+  "main": "backend-joca.js",
+  "scripts": {
+    "start": "node backend-joca.js",
+    "dev": "nodemon backend-joca.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "educational-game",
+    "platformer",
+    "portuguese-learning",
+    "syllables",
+    "node.js"
+  ],
+  "author": "Felipe",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

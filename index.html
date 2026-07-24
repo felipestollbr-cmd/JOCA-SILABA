@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#5c94fc">
+  <title>Sílaba Aventura com o Joca</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Press Start 2P', monospace; }
+    
+    .screen { display: none; width: 100%; height: 100vh; position: absolute; inset: 0; }
+    .screen.active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    
+    /* ═══ TITLE SCREEN ═══ */
+    #screen-title {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .title-container {
+      text-align: center;
+      z-index: 10;
+      animation: slideDown 0.8s ease;
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .title-game {
+      font-size: 3rem;
+      color: #fff;
+      margin: 20px 0;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      letter-spacing: 2px;
+    }
+    
+    .title-subtitle {
+      font-size: 0.8rem;
+      color: #f8b800;
+      margin: 20px 0;
+      letter-spacing: 1px;
+    }
+    
+    .start-button {
+      margin-top: 40px;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #f8b800 0%, #ff6b35 100%);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 10px;
+      font-family: 'Press Start 2P', monospace;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 0 #c84c0c;
+    }
+    
+    .start-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 11px 0 #c84c0c;
+    }
+    
+    .start-button:active {
+      transform: translateY(0px);
+      box-shadow: 0 0 0 #c84c0c;
+    }
+    
+    /* ═══ WORLD SELECT ═══ */
+    #screen-worlds {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    .worlds-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 40px;
+      max-width: 1000px;
+      width: 100%;
+    }
+    
+    .world-card {
+      aspect-ratio: 1;
+      border: 4px solid #f8b800;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .world-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+    }
+    
+    .world-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(248, 184, 0, 0.6);
+    }
+    
+    .world-card-title {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .world-emoji {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* ═══ GAME SCREEN ═══ */
+    #screen-game {
+      background: #1a1a2e;
+      flex-direction: column;
+    }
+    
+    .game-header {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #f8b800;
+      width: 100%;
+    }
+    
+    .world-title {
+      color: #f8b800;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+    }
+    
+    .back-button {
+      background: #c84c0c;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    
+    .back-button:hover {
+      background: #ff6b35;
+    }
+    
+    .game-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+    }
+    
+    .monster-section {
+      background: rgba(248, 184, 0, 0.1);
+      border: 3px solid #f8b800;
+      border-radius: 15px;
+      padding: 30px;
+      margin: 20px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .monster-title {
+      color: #f8b800;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    
+    .monster-emoji {
+      font-size: 4rem;
+      margin: 20px 0;
+    }
+    
+    .monster-info {
+      color: #fff;
+      margin: 15px 0;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    
+    .monster-stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(248, 184, 0, 0.3);
+      color: #fff;
+      font-size: 0.8rem;
+    }
+    
+    .stat-label {
+      color: #f8b800;
+    }
+    
+    .stat-value {
+      color: #5af;
+    }
+    
+    .boss-warning {
+      color: #f44;
+      font-size: 1rem;
+      margin: 15px 0;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .fight-button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #f8b800 0%, #ff6b35 100%);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+      transition: all 0.3s ease;
+    }
+    
+    .fight-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(248, 184, 0, 0.6);
+    }
+    
+    .monsters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      width: 100%;
+      max-width: 600px;
+    }
+    
+    .small-monster {
+      background: rgba(248, 184, 0, 0.05);
+      border: 2px solid rgba(248, 184, 0, 0.4);
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .small-monster:hover {
+      border-color: #f8b800;
+      background: rgba(248, 184, 0, 0.15);
+      transform: translateY(-3px);
+    }
+    
+    .small-monster-emoji {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    
+    .small-monster-name {
+      color: #fff;
+      font-size: 0.7rem;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+    
+    .small-monster-hp {
+      color: #5af;
+      font-size: 0.6rem;
+    }
+    
+    .loading {
+      color: #f8b800;
+      font-size: 1.2rem;
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .error-message {
+      color: #f44;
+      background: rgba(255, 68, 68, 0.2);
+      border: 2px solid #f44;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px;
+      text-align: center;
+    }
+
+    /* World colors */
+    .world-zoo { background: linear-gradient(135deg, #FF9500, #ff6b35); }
+    .world-jungle { background: linear-gradient(135deg, #2ECC71, #27AE60); }
+    .world-ocean { background: linear-gradient(135deg, #3498DB, #2980b9); }
+    .world-desert { background: linear-gradient(135deg, #F39C12, #d68910); }
+    .world-arctic { background: linear-gradient(135deg, #ECF0F1, #bdc3c7); color: #000 !important; }
+    .world-forest { background: linear-gradient(135deg, #27AE60, #1e8449); }
+  </style>
+</head>
+<body>
+  <!-- TITLE SCREEN -->
+  <div id="screen-title" class="screen active">
+    <div class="title-container">
+      <div class="title-game">🎮 JOCA 🎮</div>
+      <div class="title-game">SÍLABA AVENTURA</div>
+      <div class="title-subtitle">Derrote monstros dominando as sílabas!</div>
+      <button class="start-button" onclick="showWorlds()">START GAME</button>
+    </div>
+  </div>
+
+  <!-- WORLD SELECT SCREEN -->
+  <div id="screen-worlds" class="screen">
+    <h1 style="color: #f8b800; margin-bottom: 30px; font-size: 2rem;">CHOOSE YOUR WORLD</h1>
+    <div class="worlds-container" id="worlds-list"></div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <div class="world-title" id="game-world-title">WORLD</div>
+      <button class="back-button" onclick="showWorlds()">← BACK</button>
+    </div>
+    <div class="game-content" id="game-content">
+      <div class="loading">Carregando dados...</div>
+    </div>
+  </div>
+
+  <script src="/gameClient.js"></script>
+  <script>
+    // Config
+    const API_URL = 'http://localhost:3001';
+    const gameClient = new GameClient(API_URL);
+    
+    const worldEmojis = {
+      'zoo': '🦁',
+      'jungle': '🐅',
+      'ocean': '🦈',
+      'desert': '🐪',
+      'arctic': '🐻‍❄️',
+      'forest': '🐻'
+    };
+    
+    const worldNames = {
+      'zoo': 'Zoo da Sílaba',
+      'jungle': 'Selva das Letras',
+      'ocean': 'Oceano Silábico',
+      'desert': 'Deserto Desafiador',
+      'arctic': 'Ártico Gelado',
+      'forest': 'Floresta Encantada'
+    };
+    
+    let currentWorldId = null;
+    let currentWorldData = null;
+
+    // Switch screens
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    // Show world selection
+    async function showWorlds() {
+      switchScreen('screen-worlds');
+      const worldsList = document.getElementById('worlds-list');
+      worldsList.innerHTML = '<div class="loading">Carregando mundos...</div>';
+
+      try {
+        const worlds = await gameClient.getWorlds();
+        worldsList.innerHTML = '';
+        
+        for (const world of worlds) {
+          const card = document.createElement('div');
+          card.className = `world-card world-${world.id}`;
+          card.innerHTML = `
+            <div class="world-emoji">${worldEmojis[world.id] || '🌍'}</div>
+            <div class="world-card-title">${worldNames[world.id] || world.name}</div>
+          `;
+          card.onclick = () => loadWorld(world.id);
+          worldsList.appendChild(card);
+        }
+      } catch (error) {
+        worldsList.innerHTML = `<div class="error-message">❌ Erro ao carregar mundos:<br>${error.message}</div>`;
+        console.error('Erro:', error);
+      }
+    }
+
+    // Load world data
+    async function loadWorld(worldId) {
+      currentWorldId = worldId;
+      switchScreen('screen-game');
+      
+      document.getElementById('game-world-title').textContent = worldNames[worldId] || 'World';
+      document.getElementById('game-content').innerHTML = '<div class="loading">Carregando mundo...</div>';
+
+      try {
+        const worldData = await gameClient.getWorldMonsters(worldId);
+        const bossData = await gameClient.getWorldBoss(worldId);
+        
+        currentWorldData = worldData;
+        renderWorld(worldData, bossData.boss);
+      } catch (error) {
+        document.getElementById('game-content').innerHTML = `
+          <div class="error-message">❌ Erro ao carregar mundo:<br>${error.message}</div>
+        `;
+        console.error('Erro:', error);
+      }
+    }
+
+    // Render world content
+    function renderWorld(worldData, boss) {
+      const content = document.getElementById('game-content');
+      content.innerHTML = '';
+
+      // Boss section
+      const bossSection = document.createElement('div');
+      bossSection.className = 'monster-section';
+      bossSection.style.borderColor = '#f44';
+      bossSection.innerHTML = `
+        <div class="monster-title" style="color: #f44;">👑 BOSS DO MUNDO 👑</div>
+        <div class="monster-emoji">${getMonsterEmoji(boss.id)}</div>
+        <div class="monster-info">
+          <strong>${boss.name}</strong>
+          <div class="boss-warning">⚡ MUITO PERIGOSO! ⚡</div>
+          <div class="monster-stat">
+            <span class="stat-label">Vida:</span>
+            <span class="stat-value">${boss.health} HP</span>
+          </div>
+          <div class="monster-stat">
+            <span class="stat-label">Velocidade:</span>
+            <span class="stat-value">${boss.speed}</span>
+          </div>
+          <div class="monster-stat">
+            <span class="stat-label">Dano:</span>
+            <span class="stat-value">${boss.damage}</span>
+          </div>
+          <div class="monster-stat">
+            <span class="stat-label">Palavra:</span>
+            <span class="stat-value">${boss.vocab.word}</span>
+          </div>
+          <div class="monster-stat">
+            <span class="stat-label">Ganho:</span>
+            <span class="stat-value">${boss.score} XP</span>
+          </div>
+        </div>
+        <button class="fight-button" onclick="fightBoss('${boss.id}')">FIGHT BOSS!</button>
+      `;
+      content.appendChild(bossSection);
+
+      // Regular monsters
+      const monsterTitle = document.createElement('div');
+      monsterTitle.style.cssText = 'color: #f8b800; font-size: 1rem; margin: 20px 0; letter-spacing: 2px; width: 100%;';
+      monsterTitle.textContent = 'PALAVRAS DESTE MUNDO:';
+      content.appendChild(monsterTitle);
+
+      const monstersGrid = document.createElement('div');
+      monstersGrid.className = 'monsters-grid';
+      
+      const regularMonsters = worldData.monsters.filter(m => m.id !== worldData.bossId);
+      
+      for (const monster of regularMonsters) {
+        const card = document.createElement('div');
+        card.className = 'small-monster';
+        card.innerHTML = `
+          <div class="small-monster-emoji">${getMonsterEmoji(monster.id)}</div>
+          <div class="small-monster-name">${monster.name}</div>
+          <div class="small-monster-hp">❤️ ${monster.health}</div>
+          <div class="small-monster-hp">⚔️ ${monster.damage}</div>
+        `;
+        card.onclick = () => fightMonster(monster.id);
+        monstersGrid.appendChild(card);
+      }
+      
+      content.appendChild(monstersGrid);
+    }
+
+    // Get emoji for monster
+    function getMonsterEmoji(monsterId) {
+      const emojis = {
+        'lion': '🦁', 'monkey': '🐵', 'zebra': '🦓',
+        'snake': '🐍', 'jaguar': '🐆', 'parrot': '🦜',
+        'shark': '🦈', 'octopus': '🐙', 'jellyfish': '🪼',
+        'scorpion': '🦂', 'camel': '🐪', 'lizard': '🦎',
+        'polar_bear': '🐻‍❄️', 'penguin': '🐧', 'seal': '🦭',
+        'wolf': '🐺', 'bear': '🐻', 'fox': '🦊'
+      };
+      return emojis[monsterId] || '👹';
+    }
+
+    // Fight monster
+    function fightMonster(monsterId) {
+      const monster = currentWorldData.monsters.find(m => m.id === monsterId);
+      alert(`⚔️ DESAFIO DE SÍLABAS ⚔️\n\n` +
+        `${monster.name}\n\n` +
+        `❤️ Vida: ${monster.health}\n` +
+        `⚔️ Poder: ${monster.damage}\n` +
+        `💨 Velocidade: ${monster.speed}\n\n` +
+        `📚 Palavra-Chave: ${monster.vocab.word}\n` +
+        `📖 Pronúncia: ${monster.vocab.pronunciation}\n\n` +
+        `🎯 Ganho: ${monster.score} XP`);
+    }
+
+    // Fight boss
+    function fightBoss(bossId) {
+      const boss = currentWorldData.monsters.find(m => m.id === bossId);
+      alert(`👑 CHEFE SUPREMO! 👑\n\n` +
+        `${boss.name}\n\n` +
+        `❤️ Vida: ${boss.health} (EXTREMA!)\n` +
+        `⚔️ Poder: ${boss.damage} (DEVASTADOR!)\n` +
+        `💨 Velocidade: ${boss.speed}\n\n` +
+        `📚 Palavra-Mestre: ${boss.vocab.word}\n` +
+        `🎯 Ganho: ${boss.score} XP (ENORME!)\n\n` +
+        `⚠️ Comportamento: ${boss.behavior}\n` +
+        `💥 Ataques: ${boss.attacks.join(', ')}`);
+    }
+
+    // Initialize
+    console.log('🎮 Sílaba Aventura com o Joca carregado! Clique em START para começar.');
+  </script>
+</body>
+</html>
