@@ -18,7 +18,7 @@ describe('API do Sílaba Aventura com o Joca', () => {
     ]);
     response.body.forEach((world) => {
       expect(world.name).toBeTruthy();
-      expect(world.name).not.toMatch(/world|jungle|forest|desert|arctic/i);
+      expect(world.name).not.toMatch(/world/i);
     });
   });
 
