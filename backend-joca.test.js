@@ -80,6 +80,23 @@ describe('API do Sílaba Aventura com o Joca', () => {
     }
   });
 
+  test('CORS permite o domínio de produção e o preview do projeto Joca', async () => {
+    const productionOrigin = 'https://joca-silaba.vercel.app';
+    const previewOrigin = 'https://joca-silaba-git-feat-combate-s-47b7e7-felipes-projects-40f5c060.vercel.app';
+
+    const production = await request(app).get('/api/worlds').set('Origin', productionOrigin);
+    const preview = await request(app).get('/api/worlds').set('Origin', previewOrigin);
+
+    expect(production.headers['access-control-allow-origin']).toBe(productionOrigin);
+    expect(preview.headers['access-control-allow-origin']).toBe(previewOrigin);
+  });
+
+  test('CORS não libera previews de projetos que não são do Joca', async () => {
+    const origin = 'https://site-desconhecido-git-main-felipes-projects-40f5c060.vercel.app';
+    const response = await request(app).get('/api/worlds').set('Origin', origin);
+    expect(response.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
   test('mundo inexistente retorna 404', async () => {
     const response = await request(app).get('/api/worlds/mundo-inexistente/monsters');
     expect(response.status).toBe(404);
