@@ -427,8 +427,13 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🎮 Sílaba Aventura com o Joca rodando em http://localhost:${PORT}`);
-});
+
+// Só inicia o servidor automaticamente quando este arquivo é executado diretamente.
+// Isso permite importar o app nos testes automatizados sem abrir uma porta extra.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🎮 Sílaba Aventura com o Joca rodando em http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
