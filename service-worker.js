@@ -1,7 +1,7 @@
 /* Service Worker do Sílaba Aventura com o Joca.
  * Cacheia somente a aplicação estática. Respostas da API externa nunca são cacheadas aqui.
  */
-const CACHE_NAME = 'joca-static-v1.5.0';
+const CACHE_NAME = 'joca-static-v1.6.0';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -10,6 +10,7 @@ const APP_SHELL = [
   '/joca-character.svg',
   '/combat.js',
   '/learning-content.js',
+  '/learning-progress.js',
   '/manifest.json',
   '/icon-joca.svg',
   '/service-worker.js'
