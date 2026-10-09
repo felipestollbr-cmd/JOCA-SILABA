@@ -102,10 +102,17 @@
     const progress = read();
     const stats = allStats(progress);
     const currentWord = String(word || '').normalize('NFC').toLocaleLowerCase('pt-BR');
-    const candidates = SKILL_ORDER.filter((skill) => {
-      const attempts = progress.attempts.filter((a) => a.skill === skill && a.word.normalize('NFC').toLocaleLowerCase('pt-BR') === currentWord);
-      return attempts.length < 2;
-    });
+    // Quando há uma palavra, evita repetir indefinidamente a mesma combinação palavra/habilidade.
+    // Sem palavra (ex.: resumo da timeline), recomenda globalmente a habilidade menos consolidada.
+    const candidates = currentWord
+      ? SKILL_ORDER.filter((skill) => {
+          const attempts = progress.attempts.filter((a) =>
+            a.skill === skill &&
+            String(a.word || '').normalize('NFC').toLocaleLowerCase('pt-BR') === currentWord
+          );
+          return attempts.length < 2;
+        })
+      : SKILL_ORDER.filter((skill) => !stats[skill].mastered);
     const pool = candidates.length ? candidates : SKILL_ORDER.filter((skill) => !stats[skill].mastered);
     if (!pool.length) return 'reading';
     // Prioriza habilidades já tentadas com dificuldade; em empate, segue a progressão.
