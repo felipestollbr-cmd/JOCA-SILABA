@@ -35,3 +35,9 @@ Branch de trabalho: `feat/timeline-adaptativa-v1`.
 - Adicionado teste de regressão que verifica se uma habilidade dominada deixa de ser a recomendação quando há outra habilidade sem prática.
 - Adicionado workflow `.github/workflows/test.yml` para executar `npm ci` e `npm test -- --runInBand` no GitHub Actions.
 - **Validação pendente:** a existência do workflow e dos testes no repositório não significa que a execução já terminou. Não marcar esta alteração como aprovada até consultar o resultado real do job e testar o jogo em navegador.
+
+## Continuação — matriz pedagógica e integridade do conteúdo
+
+- Criado `MATRIZ-PEDAGOGICA-BNCC.md` como proposta inicial de mapeamento entre habilidades, atividades e evidências. O documento declara explicitamente que requer revisão docente e não equivale a certificação de conformidade integral com a BNCC.
+- Criado `learning-content.test.js` para verificar se as sílabas de cada personagem reconstroem a palavra e se cada personagem tem ficha de leitura, pergunta, opções com resposta correta e frase.
+- **Execução pendente:** estes testes foram adicionados ao repositório, mas não há resultado de execução confirmado neste registro. Validar no GitHub Actions ou em ambiente Node funcional antes de declarar aprovação.
