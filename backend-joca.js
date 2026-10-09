@@ -134,7 +134,7 @@ const WORLD_WORDS = {
         sprite: 'papagaio',
         behavior: 'fly',
         attacks: ['bico', 'grito'],
-        vocab: { word: 'papagaio', syllables: 'pa-pa-ga-io', pronunciation: '/papaˈgaju/' }
+        vocab: { word: 'papagaio', syllables: 'pa-pa-gai-o', pronunciation: '/papaˈgaju/' }
       }
     ],
     bossId: 'onca'
