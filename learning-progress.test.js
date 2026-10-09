@@ -46,6 +46,13 @@ describe('motor da timeline adaptativa do Joca', () => {
     expect(timeline.recommendedLabel).toBeTruthy();
   });
 
+  test('a timeline deixa de recomendar uma habilidade já dominada', () => {
+    const store = createJocaProgress(makeStorage(), makeSessionStorage());
+    ['macaco', 'leão', 'zebra'].forEach((word) => store.recordAttempt('initialLetter', word, true));
+    expect(store.allStats(store.read()).initialLetter.mastered).toBe(true);
+    expect(store.timeline().recommended).toBe('first');
+  });
+
   test('considera diferentes palavras e respostas independentes para domínio', () => {
     const store = createJocaProgress(makeStorage(), makeSessionStorage());
     ['macaco', 'leão', 'zebra'].forEach((word) => store.recordAttempt('first', word, true));
