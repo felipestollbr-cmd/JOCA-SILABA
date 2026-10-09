@@ -6,6 +6,25 @@ O jogo deve ser um recurso complementar para alfabetização e letramento. A pla
 
 **Limite de alinhamento:** esta matriz usa habilidades públicas da BNCC e princípios gerais de aprendizagem. O jogo não é material oficial do Sistema Positivo de Ensino e não foi homologado pela editora. Para conferir a sequência exata usada pela escola, é preciso confrontar a matriz com o ano, volume e planejamento do material didático adotado, sem copiar conteúdo protegido.
 
+## Princípios públicos do Sistema Positivo aplicados ao jogo
+
+A página oficial de Anos Iniciais do Sistema Positivo descreve uma alfabetização gradual, divertida e desafiadora, baseada em experimentação, que respeita o tempo e as características de cada criança e conecta conhecimentos ao cotidiano. A orientação pública sobre atividade lúdica também destaca a intencionalidade: o jogo precisa começar por um objetivo de aprendizagem e permitir ao educador observar o que o aluno já sabe e o que precisa ser retomado.
+
+Aplicação no Joca:
+
+- A fase começa pelo objetivo de aprendizagem, não apenas pelo monstro a derrotar.
+- A criança explora, tenta, recebe pistas e tenta novamente; decorar a resposta não deve ser suficiente.
+- Palavras e textos vêm de situações familiares e significativas: lista, bilhete, receita, instrução, legenda, adivinha e pequeno texto informativo/narrativo.
+- O jogo respeita ritmos diferentes: sem punição por erro linguístico, com áudio repetível e ajudas progressivas.
+- A síntese registra o que foi observado e propõe uma retomada ao professor/família, em vez de classificar a criança por pontuação.
+
+Referências públicas do Sistema Positivo:
+- [Ensino Fundamental — Anos Iniciais: ler e escrever no tempo certo](https://www.sistemapositivo.com.br/nossas-solucoes/recursos-didaticos/ensino-fundamental-anos-iniciais-1o-ao-5o-ano/)
+- [Atividade lúdica nas séries iniciais: como usar o jogo a favor do conteúdo](https://www.sistemapositivo.com.br/atividade-ludica-nas-series-iniciais-como-usar-o-jogo-a-favor-do-conteudo/)
+- [A BNCC, a alfabetização e o multiletramento](https://www.sistemapositivo.com.br/a-bncc-a-alfabetizacao-e-o-multiletramento/)
+
+Esses princípios públicos orientam o design; não substituem o mapa curricular específico, o manual do professor nem a validação da equipe pedagógica da escola.
+
 ## Diagnóstico dos jogos existentes
 
 O repositório original [JOCA](https://github.com/felipestollbr-cmd/JOCA) contém um jogo de plataforma com 8 mundos, 24 fases e 72 desafios principais, organizados por famílias silábicas. Já tem mapa de fases, movimentação, coleta de objetos, blocos de perguntas, áudio/fala e salvamento local. Isso deve ser aproveitado; não é necessário transformar a plataforma em um questionário.
