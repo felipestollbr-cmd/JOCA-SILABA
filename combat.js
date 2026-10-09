@@ -44,7 +44,7 @@
   function getLearningPath() {
     try {
       const path = localStorage.getItem("joca-learning-path");
-      return ["descobrir", "construir", "compreender"].includes(path) ? path : "descobrir";
+      return ["adaptativa", "descobrir", "construir", "compreender"].includes(path) ? path : "adaptativa";
     } catch (_) {
       return "descobrir";
     }
@@ -56,23 +56,32 @@
       : null;
   }
 
-  function saveLearningProgress(mode, word) {
+  function saveLearningProgress(mode, word, correct) {
+    let correctTotal = 0;
     try {
       const key = "joca-learning-progress";
-      const progress = JSON.parse(localStorage.getItem(key) || '{"total":0,"skills":{},"words":{}}');
-      progress.total = (progress.total || 0) + 1;
-      progress.skills = progress.skills || {};
-      progress.words = progress.words || {};
-      progress.skills[mode] = (progress.skills[mode] || 0) + 1;
-      progress.words[word] = (progress.words[word] || 0) + 1;
-      progress.lastActivity = new Date().toISOString();
-      localStorage.setItem(key, JSON.stringify(progress));
-      // Atualiza a linha do tempo assim que uma resposta correta for registrada.
+      if (window.JOCA_PROGRESS) {
+        window.JOCA_PROGRESS.recordAttempt(mode, word, correct, { hintLevel: 0 });
+        const detailed = window.JOCA_PROGRESS.read();
+        correctTotal = detailed.attempts.filter((attempt) => attempt.correct).length;
+      } else {
+        const progress = JSON.parse(localStorage.getItem(key) || '{"total":0,"skills":{},"words":{}}');
+        progress.total = progress.total || 0;
+        progress.skills = progress.skills || {};
+        progress.words = progress.words || {};
+        if (correct) {
+          progress.total += 1;
+          progress.skills[mode] = (progress.skills[mode] || 0) + 1;
+          progress.words[word] = (progress.words[word] || 0) + 1;
+        }
+        progress.lastActivity = new Date().toISOString();
+        localStorage.setItem(key, JSON.stringify(progress));
+        correctTotal = progress.total;
+      }
+      // Registra acertos e erros para que a recomendação possa considerar a dificuldade.
       window.dispatchEvent(new Event("joca:progress-updated"));
-      return progress.total;
-    } catch (_) {
-      return 0;
-    }
+    } catch (_) {}
+    return correctTotal;
   }
 
   function getMonsterEmoji(id) {
@@ -172,16 +181,18 @@
     state.result = null;
 
     const path = getLearningPath();
+    const word = state.monster.vocab.word;
     const coreModes = ["initialLetter", "assemble", "first", "count"];
-    // Nas trilhas mais avançadas, introduzimos frases e leitura cedo para
-    // que a criança consiga praticar essas habilidades em uma mesma batalha.
+    // A trilha adaptativa escolhe a habilidade menos consolidada e considera os erros recentes.
+    // As trilhas manuais permanecem disponíveis para família/professor.
     const modes = path === "construir"
       ? ["initialLetter", "assemble", "sentence", "first", "sentence", "count"]
       : path === "compreender"
         ? ["initialLetter", "reading", "assemble", "sentence", "reading", "count"]
         : coreModes;
-    const mode = modes[state.round % modes.length];
-    const word = state.monster.vocab.word;
+    const mode = path === "adaptativa" && window.JOCA_PROGRESS
+      ? window.JOCA_PROGRESS.recommendMode(word)
+      : modes[state.round % modes.length];
     const syllables = state.syllables;
     const info = getLearningInfo(state.monster.id);
     let choices;
@@ -291,6 +302,7 @@
       correct = answer[0] === state.question.correctAnswer;
     }
 
+    const activities = saveLearningProgress(mode, state.monster.vocab.word, correct);
     if (correct) {
       const learningPath = getLearningPath();
       const damage = learningPath === "descobrir"
@@ -299,7 +311,6 @@
       state.monsterHp = Math.max(0, state.monsterHp - damage);
       state.xp += 10;
       try { localStorage.setItem("joca-xp", String(state.xp)); } catch (_) {}
-      const activities = saveLearningProgress(mode, state.monster.vocab.word);
       updateHealth();
       state.result = state.monsterHp === 0 ? "victory" : "correct";
       byId("combat-feedback").textContent = mode === "reading"
