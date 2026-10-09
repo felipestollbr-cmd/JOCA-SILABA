@@ -35,6 +35,9 @@ describe('API do Sílaba Aventura com o Joca', () => {
         expect(monster.vocab.word).toBeTruthy();
         expect(monster.vocab.syllables).toBeTruthy();
         expect(monster.vocab.syllables.split('-').filter(Boolean).length).toBeGreaterThan(0);
+        const normalizedWord = monster.vocab.word.toLocaleLowerCase('pt-BR').replace(/-/g, '');
+        const normalizedSyllables = monster.vocab.syllables.toLocaleLowerCase('pt-BR').split('-').join('');
+        expect(normalizedSyllables).toBe(normalizedWord);
       });
 
       const bossResponse = await request(app).get('/api/worlds/' + worldId + '/boss');
