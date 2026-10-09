@@ -944,6 +944,7 @@
     // Preferência local: a trilha fica guardada neste navegador.
     const learningPathSelect = document.getElementById('learning-path');
     const learningPathDescriptions = {
+      adaptativa: 'O Joca escolhe desafios com base nas tentativas e nas habilidades que precisam de mais prática.',
       descobrir: 'Letras, sílabas e formação de palavras. Sem cronômetro, com dicas para aprender.',
       construir: 'Pratique letras e sílabas e avance para organizar palavras em frases com espaços e pontuação.',
       compreender: 'Leia fichas curtas, encontre informações no texto e organize frases com sentido.'
@@ -951,6 +952,10 @@
     try {
       const savedPath = localStorage.getItem('joca-learning-path');
       if (savedPath && learningPathDescriptions[savedPath]) learningPathSelect.value = savedPath;
+      else {
+        learningPathSelect.value = 'adaptativa';
+        localStorage.setItem('joca-learning-path', 'adaptativa');
+      }
       learningPathSelect.addEventListener('change', () => {
         localStorage.setItem('joca-learning-path', learningPathSelect.value);
         document.getElementById('learning-path-description').textContent =
@@ -1156,31 +1161,6 @@
     });
     renderJocaLearningTimeline();
 
-    // Descrições das trilhas, mantendo seleção manual opcional.
-    const learningPathSelect = document.getElementById('learning-path');
-    const learningPathDescriptions = {
-      adaptativa: 'O Joca escolhe desafios com base nas tentativas e nas habilidades que precisam de mais prática.',
-      descobrir: 'Letras, sílabas e formação de palavras. Sem cronômetro, com dicas para aprender.',
-      construir: 'Monte palavras e organize frases com sentido.',
-      compreender: 'Leia textos curtos e encontre informações importantes.'
-    };
-    try {
-      const savedPath = localStorage.getItem('joca-learning-path');
-      if (savedPath && learningPathDescriptions[savedPath]) learningPathSelect.value = savedPath;
-      else {
-        learningPathSelect.value = 'adaptativa';
-        localStorage.setItem('joca-learning-path', 'adaptativa');
-      }
-      learningPathSelect.addEventListener('change', () => {
-        localStorage.setItem('joca-learning-path', learningPathSelect.value);
-        document.getElementById('learning-path-description').textContent =
-          learningPathDescriptions[learningPathSelect.value];
-      });
-      document.getElementById('learning-path-description').textContent =
-        learningPathDescriptions[learningPathSelect.value];
-    } catch (error) {
-      console.warn('A preferência da trilha não pôde ser salva neste dispositivo.', error);
-    }
   </script>
 
   <script>
