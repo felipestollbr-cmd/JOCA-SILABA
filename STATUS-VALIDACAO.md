@@ -26,3 +26,12 @@ PR: https://github.com/felipestollbr-cmd/JOCA-SILABA/pull/1
 ## Significado do status
 
 O check de build da Vercel e a análise estática não substituem testes funcionais completos. Esta branch segue em rascunho e **não foi incorporada à branch principal**.
+
+## Continuação — timeline adaptativa (branch isolada)
+
+Branch de trabalho: `feat/timeline-adaptativa-v1`.
+
+- Corrigida a recomendação global da timeline: sem uma palavra-alvo, o motor prioriza habilidades ainda não dominadas, em vez de aplicar o limite de tentativas por palavra vazia.
+- Adicionado teste de regressão que verifica se uma habilidade dominada deixa de ser a recomendação quando há outra habilidade sem prática.
+- Adicionado workflow `.github/workflows/test.yml` para executar `npm ci` e `npm test -- --runInBand` no GitHub Actions.
+- **Validação pendente:** a existência do workflow e dos testes no repositório não significa que a execução já terminou. Não marcar esta alteração como aprovada até consultar o resultado real do job e testar o jogo em navegador.
