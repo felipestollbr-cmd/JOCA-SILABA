@@ -6,11 +6,12 @@
 
   const byId = (id) => document.getElementById(id);
   const syllableBank = [
-    "ba", "be", "ca", "co", "da", "de", "do", "fa", "fo", "ga", "go",
+    "ba", "be", "ca", "co", "da", "de", "do", "fa", "fo", "ga", "gai", "go",
     "gua", "la", "le", "li", "lo", "ma", "me", "na", "ne", "no", "on",
     "pa", "pi", "po", "ra", "re", "ri", "ro", "sa", "se", "ta", "to",
     "tu", "ur", "va", "vi", "za", "ão", "ça", "é", "á"
   ];
+  const letterBank = ["a", "b", "c", "e", "f", "g", "l", "m", "o", "p", "r", "s", "t", "u", "z", "á"];
 
   const state = {
     monster: null,
@@ -169,7 +170,7 @@
     state.result = null;
 
     const path = getLearningPath();
-    const coreModes = ["assemble", "first", "count"];
+    const coreModes = ["initialLetter", "assemble", "first", "count"];
     const modes = path === "construir"
       ? [...coreModes, "sentence"]
       : path === "compreender"
@@ -186,7 +187,17 @@
     let correctAnswer = null;
     let targetWords = null;
 
-    if (mode === "assemble") {
+    if (mode === "initialLetter") {
+      badge = "🔤 PRIMEIRA LETRA";
+      instruction = "Qual letra começa a palavra?";
+      const initial = word.toLocaleLowerCase("pt-BR").slice(0, 1);
+      correctAnswer = initial;
+      const extras = shuffle(letterBank.filter((letter) => letter !== initial)).slice(0, 3);
+      choices = shuffle([
+        { id: "letter-correct", value: initial, label: initial.toLocaleUpperCase("pt-BR") },
+        ...extras.map((value, index) => ({ id: "letter-extra-" + index, value, label: value.toLocaleUpperCase("pt-BR") }))
+      ]);
+    } else if (mode === "assemble") {
       badge = "⚔️ ATAQUE SILÁBICO";
       instruction = "Monte a palavra usando as sílabas na ordem correta.";
       choices = shuffle(syllables.map((value, index) => ({
@@ -263,6 +274,8 @@
     if (mode === "assemble") {
       correct = answer.length === state.syllables.length &&
         answer.every((value, index) => value === state.syllables[index]);
+    } else if (mode === "initialLetter") {
+      correct = answer[0] === state.question.correctAnswer;
     } else if (mode === "first") {
       correct = answer[0] === state.syllables[0];
     } else if (mode === "count") {
