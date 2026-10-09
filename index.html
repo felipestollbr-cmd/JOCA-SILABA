@@ -353,10 +353,11 @@
     </div>
   </div>
 
+  <script src="/world-data.js"></script>
   <script src="/gameClient.js"></script>
   <script>
     // Config
-    const API_URL = 'http://localhost:3001';
+    const API_URL = window.JOCA_API_URL || 'https://joca-silaba.up.railway.app';
     const gameClient = new GameClient(API_URL);
     
     const worldEmojis = {
