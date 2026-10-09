@@ -195,6 +195,7 @@
       state.monsterHp = Math.max(0, state.monsterHp - damage);
       updateHealth();
       byId("combat-feedback").textContent = "Muito bem! Joca acertou o ataque e causou " + damage + " de dano!";
+      state.result = state.monsterHp === 0 ? "victory" : "correct";
       setResolvedControls(state.monsterHp === 0 ? "VOLTAR AO MUNDO" : "PRÓXIMA PERGUNTA");
       if (state.monsterHp === 0) {
         state.result = "victory";
@@ -209,6 +210,7 @@
       const damage = Math.max(1, Number(state.monster.damage) || 4);
       state.playerHp = Math.max(0, state.playerHp - damage);
       updateHealth();
+      state.result = state.playerHp === 0 ? "defeat" : "incorrect";
       setResolvedControls(state.playerHp === 0 ? "VOLTAR AO MUNDO" : "TENTAR OUTRA PERGUNTA");
       if (state.playerHp === 0) {
         state.result = "defeat";
