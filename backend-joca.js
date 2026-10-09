@@ -9,8 +9,26 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+// Origens permitidas: frontend de produção, versão antiga e desenvolvimento local.
+// FRONTEND_URL aceita uma ou várias origens separadas por vírgula.
+const defaultAllowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://joca-silaba.vercel.app',
+  'https://joca-two.vercel.app'
+];
+const configuredOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(origin => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+const allowedOrigins = new Set([...defaultAllowedOrigins, ...configuredOrigins]);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Permite chamadas sem Origin (ex.: health-check por CLI) e as origens conhecidas.
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error('Origem não permitida pelo CORS'));
+  },
   credentials: true
 }));
 
