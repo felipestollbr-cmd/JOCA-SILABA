@@ -918,10 +918,11 @@
         }
         requestAnimationFrame(pollJocaGamepad);
       }
+      // Começar a ler já no carregamento também detecta controles conectados antes de abrir o jogo.
       window.addEventListener('gamepadconnected', () => {
         previousButtons = [];
-        requestAnimationFrame(pollJocaGamepad);
-      }, { once: true });
+      });
+      requestAnimationFrame(pollJocaGamepad);
     }
   </script>
 
