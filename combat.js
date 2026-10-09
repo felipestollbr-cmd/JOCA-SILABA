@@ -173,10 +173,12 @@
 
     const path = getLearningPath();
     const coreModes = ["initialLetter", "assemble", "first", "count"];
+    // Nas trilhas mais avançadas, introduzimos frases e leitura cedo para
+    // que a criança consiga praticar essas habilidades em uma mesma batalha.
     const modes = path === "construir"
-      ? [...coreModes, "sentence"]
+      ? ["initialLetter", "assemble", "sentence", "first", "sentence", "count"]
       : path === "compreender"
-        ? [...coreModes, "sentence", "reading"]
+        ? ["initialLetter", "reading", "assemble", "sentence", "reading", "count"]
         : coreModes;
     const mode = modes[state.round % modes.length];
     const word = state.monster.vocab.word;
@@ -290,7 +292,10 @@
     }
 
     if (correct) {
-      const damage = Math.max(12, state.syllables.length * 6);
+      const learningPath = getLearningPath();
+      const damage = learningPath === "descobrir"
+        ? Math.max(12, state.syllables.length * 6)
+        : Math.max(6, state.syllables.length * 2 + 2);
       state.monsterHp = Math.max(0, state.monsterHp - damage);
       state.xp += 10;
       try { localStorage.setItem("joca-xp", String(state.xp)); } catch (_) {}
