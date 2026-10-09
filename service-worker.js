@@ -1,7 +1,7 @@
 // Service Worker para Sílaba Aventura com o Joca
 // Permite funcionar offline e cachear recursos
 
-const CACHE_NAME = 'joca-v1.0.1';
+const CACHE_NAME = 'joca-v1.0.2';
 const RUNTIME_CACHE = 'joca-runtime';
 
 // URLs a serem cacheadas na instalação
@@ -10,6 +10,7 @@ const urlsToCache = [
   '/index.html',
   '/gameClient.js',
   '/world-data.js',
+  '/joca-character.svg',
   '/manifest.json',
   '/service-worker.js'
 ];
