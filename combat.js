@@ -25,6 +25,7 @@
     syllables: [],
     question: null,
     selected: [],
+    hintLevel: 0,
     result: null
   };
 
@@ -56,12 +57,12 @@
       : null;
   }
 
-  function saveLearningProgress(mode, word, correct) {
+  function saveLearningProgress(mode, word, correct, hintLevel) {
     let correctTotal = 0;
     try {
       const key = "joca-learning-progress";
       if (window.JOCA_PROGRESS) {
-        window.JOCA_PROGRESS.recordAttempt(mode, word, correct, { hintLevel: 0 });
+        window.JOCA_PROGRESS.recordAttempt(mode, word, correct, { hintLevel: hintLevel || 0 });
         const detailed = window.JOCA_PROGRESS.read();
         correctTotal = detailed.attempts.filter((attempt) => attempt.correct).length;
       } else {
@@ -178,6 +179,7 @@
     if (!state.monster || state.result) return;
     state.round += 1;
     state.selected = [];
+    state.hintLevel = 0;
     state.result = null;
 
     const path = getLearningPath();
@@ -302,7 +304,7 @@
       correct = answer[0] === state.question.correctAnswer;
     }
 
-    const activities = saveLearningProgress(mode, state.monster.vocab.word, correct);
+    const activities = saveLearningProgress(mode, state.monster.vocab.word, correct, state.hintLevel);
     if (correct) {
       const learningPath = getLearningPath();
       const damage = learningPath === "descobrir"
@@ -333,6 +335,7 @@
         byId("next-round").textContent = "VOLTAR AO MUNDO";
       }
     } else {
+      state.hintLevel = Math.min(3, state.hintLevel + 1);
       state.result = "incorrect";
       setResolvedControls("TENTAR NOVAMENTE");
       byId("combat-feedback").textContent = mode === "reading"
