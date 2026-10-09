@@ -246,6 +246,9 @@
       closeCombat();
       return;
     }
+    // A rodada resolvida fica bloqueada até o jogador clicar em continuar.
+    // Limpar o resultado antes da próxima pergunta permite avançar sem travar.
+    state.result = null;
     nextQuestion();
   }
 
