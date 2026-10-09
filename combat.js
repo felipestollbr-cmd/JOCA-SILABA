@@ -67,6 +67,8 @@
       progress.words[word] = (progress.words[word] || 0) + 1;
       progress.lastActivity = new Date().toISOString();
       localStorage.setItem(key, JSON.stringify(progress));
+      // Atualiza a linha do tempo assim que uma resposta correta for registrada.
+      window.dispatchEvent(new Event("joca:progress-updated"));
       return progress.total;
     } catch (_) {
       return 0;
