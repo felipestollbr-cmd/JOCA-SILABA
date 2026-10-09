@@ -9,8 +9,34 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+// Origens permitidas: frontend de produção, versão antiga e desenvolvimento local.
+// FRONTEND_URL aceita uma ou várias origens separadas por vírgula.
+const defaultAllowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://joca-silaba.vercel.app',
+  'https://joca-two.vercel.app'
+];
+const configuredOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(origin => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+const allowedOrigins = new Set([...defaultAllowedOrigins, ...configuredOrigins]);
+
+function isAllowedOrigin(origin) {
+  if (!origin || allowedOrigins.has(origin)) return true;
+  try {
+    const parsed = new URL(origin);
+    // Permite previews do projeto Joca no time Vercel, sem liberar outros projetos.
+    return parsed.protocol === 'https:' &&
+      /^joca-silaba-git-[a-z0-9-]+-felipes-projects-40f5c060\.vercel\.app$/i.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => callback(null, isAllowedOrigin(origin)),
   credentials: true
 }));
 
@@ -108,7 +134,7 @@ const WORLD_WORDS = {
         sprite: 'papagaio',
         behavior: 'fly',
         attacks: ['bico', 'grito'],
-        vocab: { word: 'papagaio', syllables: 'pa-pa-ga-io', pronunciation: '/papaˈgaju/' }
+        vocab: { word: 'papagaio', syllables: 'pa-pa-gai-o', pronunciation: '/papaˈgaju/' }
       }
     ],
     bossId: 'onca'
@@ -386,8 +412,9 @@ app.get('/api/keys', (req, res) => {
       return res.status(401).json({ error: 'API key inválida' });
     }
 
+    // Nunca devolver chaves secretas ao navegador; informar apenas disponibilidade.
     res.json({
-      googleTTS: process.env.GOOGLE_TTS_KEY || '***',
+      googleTTSAvailable: Boolean(process.env.GOOGLE_TTS_KEY),
       webSpeech: true, // Web Speech API é nativa
       customEndpoint: process.env.CUSTOM_API_ENDPOINT || null
     });
@@ -409,8 +436,13 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🎮 Sílaba Aventura com o Joca rodando em http://localhost:${PORT}`);
-});
+
+// Só inicia o servidor automaticamente quando este arquivo é executado diretamente.
+// Isso permite importar o app nos testes automatizados sem abrir uma porta extra.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🎮 Sílaba Aventura com o Joca rodando em http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
