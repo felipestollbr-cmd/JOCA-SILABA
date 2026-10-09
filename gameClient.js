@@ -16,32 +16,113 @@ class GameClient {
    * Faz requisição com headers de autenticação
    */
   async request(endpoint, options = {}) {
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers
+    const method = (options.method || 'GET').toUpperCase();
+    const cacheKey = 'joca-api-cache:' + endpoint;
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    if (this.clientApiKey) headers['x-api-key'] = this.clientApiKey;
+
+    const readCached = () => {
+      if (method !== 'GET') return null;
+      try {
+        const saved = localStorage.getItem(cacheKey);
+        return saved ? JSON.parse(saved) : null;
+      } catch (_) { return null; }
     };
 
-    // Adiciona API key se disponível
-    if (this.clientApiKey) {
-      headers['x-api-key'] = this.clientApiKey;
-    }
-
     try {
-      const response = await fetch(`${this.apiUrl}${endpoint}`, {
-        ...options,
-        headers
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || `HTTP ${response.status}`);
+      let response;
+      const requestController = new AbortController();
+      const requestTimeout = setTimeout(() => requestController.abort(), 3500);
+      try {
+        response = await fetch(`${this.apiUrl}${endpoint}`, {
+          ...options,
+          headers,
+          signal: requestController.signal
+        });
+      } catch (networkError) {
+        const cached = readCached();
+        if (cached !== null) {
+          console.info('📦 Joca: usando dados salvos para continuar offline:', endpoint);
+          return cached;
+        }
+        throw networkError;
+      } finally {
+        clearTimeout(requestTimeout);
       }
 
-      return await response.json();
+      if (!response.ok) {
+        let message = `HTTP ${response.status}`;
+        try {
+          const body = await response.json();
+          message = body.error || message;
+        } catch (_) {}
+        throw new Error(message);
+      }
+
+      const data = await response.json();
+      if (method === 'GET') {
+        try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+      }
+      return data;
     } catch (error) {
+      const cached = readCached();
+      if (cached !== null && method === 'GET') {
+        console.warn('Joca: API indisponível, usando a última resposta salva:', endpoint);
+        return cached;
+      }
+      if (method === 'GET') {
+        const localData = this.getLocalData(endpoint);
+        if (localData !== null) {
+          console.warn('Joca: API indisponível; usando os dados locais do jogo:', endpoint);
+          return localData;
+        }
+      }
       console.error(`Erro na requisição ${endpoint}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Respostas locais para os endpoints essenciais do jogo.
+   * A API continua sendo a primeira opção; estes dados são o plano de contingência.
+   */
+  getLocalData(endpoint) {
+    const worlds = window.JOCA_WORLD_DATA;
+    if (!worlds) return null;
+    if (endpoint === '/api/worlds') {
+      return Object.values(worlds).map((world) => ({
+        id: world.id,
+        name: world.name,
+        color: world.color,
+        monsterCount: world.monsters.length
+      }));
+    }
+
+    let match = endpoint.match(/^\/api\/worlds\/([^/]+)\/monsters(?:\/([^/]+))?$/);
+    if (match) {
+      const world = worlds[decodeURIComponent(match[1])];
+      if (!world) return null;
+      if (match[2]) {
+        return world.monsters.find((monster) => monster.id === decodeURIComponent(match[2])) || null;
+      }
+      return {
+        world: world.id,
+        name: world.name,
+        color: world.color,
+        monsters: world.monsters,
+        bossId: world.bossId
+      };
+    }
+
+    match = endpoint.match(/^\/api\/worlds\/([^/]+)\/boss$/);
+    if (match) {
+      const world = worlds[decodeURIComponent(match[1])];
+      if (!world) return null;
+      const boss = world.monsters.find((monster) => monster.id === world.bossId);
+      return boss ? { world: world.id, boss, isBoss: true, difficulty: 'hard' } : null;
+    }
+    if (endpoint === '/api/health') return { status: 'ok', localFallback: true };
+    return null;
   }
 
   // ==================
