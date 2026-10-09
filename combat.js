@@ -40,6 +40,38 @@
     return shuffle([...new Set(syllableBank.filter((s) => s !== correct))]).slice(0, amount);
   }
 
+  function getLearningPath() {
+    try {
+      const path = localStorage.getItem("joca-learning-path");
+      return ["descobrir", "construir", "compreender"].includes(path) ? path : "descobrir";
+    } catch (_) {
+      return "descobrir";
+    }
+  }
+
+  function getLearningInfo(monsterId) {
+    return window.JOCA_LEARNING_CONTENT && window.JOCA_LEARNING_CONTENT[monsterId]
+      ? window.JOCA_LEARNING_CONTENT[monsterId]
+      : null;
+  }
+
+  function saveLearningProgress(mode, word) {
+    try {
+      const key = "joca-learning-progress";
+      const progress = JSON.parse(localStorage.getItem(key) || '{"total":0,"skills":{},"words":{}}');
+      progress.total = (progress.total || 0) + 1;
+      progress.skills = progress.skills || {};
+      progress.words = progress.words || {};
+      progress.skills[mode] = (progress.skills[mode] || 0) + 1;
+      progress.words[word] = (progress.words[word] || 0) + 1;
+      progress.lastActivity = new Date().toISOString();
+      localStorage.setItem(key, JSON.stringify(progress));
+      return progress.total;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   function getMonsterEmoji(id) {
     const emojis = {
       leao: "🦁", macaco: "🐵", zebra: "🦓",
@@ -77,7 +109,11 @@
         container.appendChild(chip);
       });
     }
-    const expected = state.question && state.question.mode === "assemble" ? state.syllables.length : 1;
+    const expected = state.question && state.question.mode === "assemble"
+      ? state.syllables.length
+      : state.question && state.question.mode === "sentence"
+        ? state.question.targetWords.length
+        : 1;
     byId("check-answer").disabled = state.selected.length === 0 ||
       (state.question && state.question.mode === "assemble" && state.selected.length !== expected);
   }
@@ -91,11 +127,15 @@
       button.className = "syllable-chip";
       button.textContent = choice.label;
       const used = state.selected.some((selected) => selected.id === choice.id);
-      const maxReached = state.question.mode === "assemble" && state.selected.length >= state.syllables.length;
+      const multiChoice = state.question.mode === "assemble" || state.question.mode === "sentence";
+      const targetCount = state.question.mode === "assemble"
+        ? state.syllables.length
+        : state.question.mode === "sentence" ? state.question.targetWords.length : 1;
+      const maxReached = multiChoice && state.selected.length >= targetCount;
       button.disabled = used || maxReached || Boolean(state.result);
       button.addEventListener("click", () => {
         if (state.result) return;
-        if (state.question.mode !== "assemble") state.selected = [];
+        if (!multiChoice) state.selected = [];
         state.selected.push(choice);
         renderAnswer();
         renderChoices();
@@ -128,13 +168,23 @@
     state.selected = [];
     state.result = null;
 
-    const modes = ["assemble", "first", "count"];
+    const path = getLearningPath();
+    const coreModes = ["assemble", "first", "count"];
+    const modes = path === "construir"
+      ? [...coreModes, "sentence"]
+      : path === "compreender"
+        ? [...coreModes, "sentence", "reading"]
+        : coreModes;
     const mode = modes[state.round % modes.length];
     const word = state.monster.vocab.word;
     const syllables = state.syllables;
+    const info = getLearningInfo(state.monster.id);
     let choices;
     let instruction;
     let badge;
+    let displayText = "Palavra: " + word;
+    let correctAnswer = null;
+    let targetWords = null;
 
     if (mode === "assemble") {
       badge = "⚔️ ATAQUE SILÁBICO";
@@ -150,7 +200,7 @@
         { id: "first-correct", value: syllables[0], label: syllables[0] },
         ...extras.map((value, index) => ({ id: "first-extra-" + index, value, label: value }))
       ]);
-    } else {
+    } else if (mode === "count") {
       badge = "🧠 CONTAGEM SILÁBICA";
       instruction = "Quantas sílabas tem esta palavra?";
       const options = new Set([String(syllables.length)]);
@@ -158,12 +208,35 @@
       choices = shuffle([...options].map((value, index) => ({
         id: "count-" + index, value, label: value
       })));
+    } else if (mode === "sentence" && info && Array.isArray(info.sentence)) {
+      badge = "✍️ CONSTRUÇÃO DE FRASES";
+      instruction = "Organize as palavras para formar uma frase com sentido.";
+      displayText = "Tema: " + word + ". Use cada peça uma vez e observe o início e o final da frase.";
+      targetWords = info.sentence.slice();
+      choices = shuffle(targetWords.map((value, index) => ({
+        id: "sentence-" + index, value, label: value
+      })));
+    } else if (mode === "reading" && info && Array.isArray(info.choices)) {
+      badge = "📖 LER E COMPREENDER";
+      instruction = info.question;
+      displayText = info.text;
+      correctAnswer = info.answer;
+      choices = shuffle(info.choices.map((value, index) => ({
+        id: "reading-" + index, value, label: value
+      })));
+    } else {
+      badge = "⚔️ ATAQUE SILÁBICO";
+      instruction = "Monte a palavra usando as sílabas na ordem correta.";
+      choices = shuffle(syllables.map((value, index) => ({
+        id: "part-" + index, value, label: value
+      })));
     }
 
-    state.question = { mode, choices };
+    state.question = { mode, choices, correctAnswer, targetWords };
     byId("combat-challenge-badge").textContent = badge;
     byId("combat-instruction").textContent = instruction;
-    byId("combat-word").textContent = "Palavra: " + word;
+    byId("combat-word").textContent = displayText;
+    byId("combat-word").classList.toggle("reading-passage", mode === "reading");
     byId("combat-feedback").textContent = "";
     byId("check-answer").hidden = false;
     byId("clear-answer").hidden = false;
@@ -174,54 +247,70 @@
 
   function checkAnswer() {
     if (!state.question || state.result || state.selected.length === 0) return;
-    if (state.question.mode === "assemble" && state.selected.length !== state.syllables.length) {
-      byId("combat-feedback").textContent = "Escolha todas as sílabas antes de conferir.";
+    const mode = state.question.mode;
+    const expectedCount = mode === "assemble"
+      ? state.syllables.length
+      : mode === "sentence"
+        ? state.question.targetWords.length
+        : 1;
+    if ((mode === "assemble" || mode === "sentence") && state.selected.length !== expectedCount) {
+      byId("combat-feedback").textContent = "Use todas as peças antes de conferir.";
       return;
     }
 
     const answer = state.selected.map((item) => item.value);
     let correct = false;
-    if (state.question.mode === "assemble") {
+    if (mode === "assemble") {
       correct = answer.length === state.syllables.length &&
         answer.every((value, index) => value === state.syllables[index]);
-    } else if (state.question.mode === "first") {
+    } else if (mode === "first") {
       correct = answer[0] === state.syllables[0];
-    } else {
+    } else if (mode === "count") {
       correct = answer[0] === String(state.syllables.length);
+    } else if (mode === "sentence") {
+      correct = answer.length === state.question.targetWords.length &&
+        answer.every((value, index) => value === state.question.targetWords[index]);
+    } else if (mode === "reading") {
+      correct = answer[0] === state.question.correctAnswer;
     }
 
     if (correct) {
       const damage = Math.max(12, state.syllables.length * 6);
       state.monsterHp = Math.max(0, state.monsterHp - damage);
+      state.xp += 10;
+      try { localStorage.setItem("joca-xp", String(state.xp)); } catch (_) {}
+      const activities = saveLearningProgress(mode, state.monster.vocab.word);
       updateHealth();
-      byId("combat-feedback").textContent = "Muito bem! Joca acertou o ataque e causou " + damage + " de dano!";
       state.result = state.monsterHp === 0 ? "victory" : "correct";
+      byId("combat-feedback").textContent = mode === "reading"
+        ? "Muito bem! Você encontrou a informação no texto. Joca acertou o ataque e causou " + damage + " de dano."
+        : mode === "sentence"
+          ? "Frase formada! As palavras estão na ordem certa. Joca causou " + damage + " de dano."
+          : "Muito bem! Você descobriu a resposta e Joca causou " + damage + " de dano!";
+      if (activities) {
+        byId("combat-xp").textContent = "⭐ XP: " + state.xp + " · Atividades corretas neste dispositivo: " + activities;
+      }
       setResolvedControls(state.monsterHp === 0 ? "VOLTAR AO MUNDO" : "PRÓXIMA PERGUNTA");
       if (state.monsterHp === 0) {
         state.result = "victory";
         state.xp += Number(state.monster.score) || 0;
+        try { localStorage.setItem("joca-xp", String(state.xp)); } catch (_) {}
         updateHealth();
         byId("combat-feedback").textContent =
           "🏆 Vitória! Você derrotou " + state.monster.name + " e ganhou " +
-          (Number(state.monster.score) || 0) + " XP!";
+          (Number(state.monster.score) || 0) + " XP. Aprender é experimentar, revisar e tentar de novo!";
         byId("next-round").textContent = "VOLTAR AO MUNDO";
       }
     } else {
-      const damage = Math.max(1, Number(state.monster.damage) || 4);
-      state.playerHp = Math.max(0, state.playerHp - damage);
-      updateHealth();
-      state.result = state.playerHp === 0 ? "defeat" : "incorrect";
-      setResolvedControls(state.playerHp === 0 ? "VOLTAR AO MUNDO" : "TENTAR OUTRA PERGUNTA");
-      if (state.playerHp === 0) {
-        state.result = "defeat";
-        byId("combat-feedback").textContent =
-          "😵 O monstro venceu esta rodada. Volte ao mundo para recuperar a energia e tente de novo!";
-        byId("next-round").textContent = "VOLTAR AO MUNDO";
-      } else {
-        byId("combat-feedback").textContent =
-          "Quase! O monstro contra-atacou e causou " + damage +
-          " de dano. Revise as sílabas e tente outra pergunta.";
-      }
+      state.result = "incorrect";
+      setResolvedControls("TENTAR NOVAMENTE");
+      byId("combat-feedback").textContent = mode === "reading"
+        ? "Ainda não. Leia a ficha mais uma vez e procure a informação que responde à pergunta."
+        : mode === "sentence"
+          ? "Quase! Pense na ordem das palavras, na letra maiúscula do início e na pontuação do final. Tente novamente."
+          : mode === "count"
+            ? "Vamos por partes: fale a palavra devagar e conte cada pedaço falado. Depois tente novamente."
+            : "Tudo bem errar ao aprender! Fale a palavra devagar, observe as partes escritas e tente outra vez.";
     }
   }
 
@@ -246,8 +335,17 @@
       closeCombat();
       return;
     }
-    // A rodada resolvida fica bloqueada até o jogador clicar em continuar.
-    // Limpar o resultado antes da próxima pergunta permite avançar sem travar.
+    if (state.result === "incorrect") {
+      state.result = null;
+      state.selected = [];
+      byId("check-answer").hidden = false;
+      byId("clear-answer").hidden = false;
+      byId("next-round").hidden = true;
+      byId("combat-feedback").textContent = "";
+      renderChoices();
+      renderAnswer();
+      return;
+    }
     state.result = null;
     nextQuestion();
   }
@@ -258,6 +356,7 @@
       return;
     }
     if (state.playerHp <= 0) state.playerHp = state.playerMaxHp;
+    try { state.xp = Number(localStorage.getItem("joca-xp") || state.xp || 0); } catch (_) {}
     state.monster = monster;
     state.isBoss = Boolean(isBoss);
     state.monsterMaxHp = Math.max(1, Number(monster.health) || 20);
