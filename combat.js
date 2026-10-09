@@ -228,9 +228,9 @@
         id: "sentence-" + index, value, label: value
       })));
     } else if (mode === "reading" && info && Array.isArray(info.choices)) {
-      badge = "📖 LER E COMPREENDER";
+      badge = "📖 FICHA INFORMATIVA";
       instruction = info.question;
-      displayText = info.text;
+      displayText = "FICHA DO ANIMAL — " + info.text;
       correctAnswer = info.answer;
       choices = shuffle(info.choices.map((value, index) => ({
         id: "reading-" + index, value, label: value
