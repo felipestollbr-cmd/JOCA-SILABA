@@ -404,8 +404,9 @@ app.get('/api/keys', (req, res) => {
       return res.status(401).json({ error: 'API key inválida' });
     }
 
+    // Nunca devolver chaves secretas ao navegador; informar apenas disponibilidade.
     res.json({
-      googleTTS: process.env.GOOGLE_TTS_KEY || '***',
+      googleTTSAvailable: Boolean(process.env.GOOGLE_TTS_KEY),
       webSpeech: true, // Web Speech API é nativa
       customEndpoint: process.env.CUSTOM_API_ENDPOINT || null
     });
