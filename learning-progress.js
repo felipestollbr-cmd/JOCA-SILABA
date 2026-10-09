@@ -41,8 +41,16 @@
       if (parsed && Array.isArray(parsed.attempts)) {
         return { ...emptyProgress(), ...parsed, attempts: parsed.attempts.slice(-MAX_ATTEMPTS) };
       }
-      // Preserva o progresso legado sem inventar evidências de domínio.
-      return emptyProgress();
+      // Preserva os contadores antigos como resumo histórico, sem convertê-los em domínio.
+      const legacy = parsed && typeof parsed === 'object' ? {
+        total: Number(parsed.total) || 0,
+        skills: parsed.skills && typeof parsed.skills === 'object' ? parsed.skills : {},
+        words: parsed.words && typeof parsed.words === 'object' ? parsed.words : {},
+        lastActivity: parsed.lastActivity || null
+      } : null;
+      const fresh = emptyProgress();
+      if (legacy) fresh.legacySummary = legacy;
+      return fresh;
     } catch (_) { return emptyProgress(); }
   }
   function skillFor(mode) { return SKILL_ORDER.includes(mode) ? mode : 'first'; }
@@ -122,7 +130,7 @@
       { key: 'build', title: 'Construir', count: build, target: 1, complete: build === 1 },
       { key: 'read', title: 'Compreender', count: reading, target: 1, complete: reading === 1 }
     ];
-    return { total, target: 6, percent: Math.round(total / 6 * 100), stages, stats, recommended, recommendedLabel: SKILL_LABELS[recommended], lastActivity: progress.updatedAt, attempts: progress.attempts.length };
+    return { total, target: 6, percent: Math.round(total / 6 * 100), stages, stats, recommended, recommendedLabel: SKILL_LABELS[recommended], lastActivity: progress.updatedAt, attempts: progress.attempts.length, legacyAttempts: progress.legacySummary ? progress.legacySummary.total : 0 };
   }
   return { read, recordAttempt, statsFor, allStats, recommendMode, timeline, key: KEY };
 });
