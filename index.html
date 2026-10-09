@@ -593,6 +593,26 @@
       .timeline-footnote { font-size:.62rem; }
     }
 
+  
+    .game-header-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+    .timeline-nav-button {
+      display:inline-flex; align-items:center; justify-content:center; min-height:44px;
+      padding:10px 14px; border:2px solid rgba(156,231,255,.8); border-radius:9px;
+      background:#273f68; color:#fff; font:clamp(.62rem,.75vw,.78rem) 'Press Start 2P',monospace;
+      cursor:pointer; line-height:1.45; text-align:center; box-shadow:0 3px 0 #142642;
+    }
+    .timeline-nav-button:hover { background:#345582; }
+    .timeline-nav-button:focus-visible { outline:4px solid #ffe08a; outline-offset:4px; }
+    .worlds-timeline-button { margin:0 12px 14px; max-width:calc(100vw - 24px); }
+    body.joca-tv-mode .game-header-actions { gap:14px; }
+    body.joca-tv-mode .timeline-nav-button { font-size:clamp(.82rem,1vw,1rem); padding:1.2vh 1.5vw; min-height:52px; }
+    body.joca-tv-mode .worlds-timeline-button { font-size:clamp(.9rem,1.1vw,1.1rem); margin-bottom:1vh; }
+    @media (max-width:680px) {
+      .game-header-actions { gap:6px; }
+      .timeline-nav-button { min-height:38px; padding:7px 8px; font: .53rem/1.35 'Press Start 2P',monospace; }
+      .worlds-timeline-button { font-size:.56rem; padding:9px 10px; }
+    }
+
   </style>
 </head>
 <body>
@@ -654,7 +674,8 @@
 
   <!-- WORLD SELECT SCREEN -->
   <div id="screen-worlds" class="screen">
-    <h1 style="color: #f8b800; margin-bottom: 30px; font-size: 2rem;">ESCOLHA SEU MUNDO</h1>
+    <h1 style="color: #f8b800; margin-bottom: 18px; font-size: 2rem;">ESCOLHA SEU MUNDO</h1>
+    <button class="timeline-nav-button worlds-timeline-button" type="button" onclick="showLearningHome()">📈 MINHA TRILHA DE APRENDIZAGEM</button>
     <div class="worlds-container" id="worlds-list"></div>
   </div>
 
@@ -662,7 +683,10 @@
   <div id="screen-game" class="screen">
     <div class="game-header">
       <div class="game-brand"><img class="joca-header-avatar" src="/joca-character.svg" alt="Joca"><div class="world-title" id="game-world-title">MUNDO</div></div>
-      <button id="joca-back-button" class="back-button" onclick="goBackFromGame()">← MUNDOS</button>
+      <div class="game-header-actions">
+        <button class="timeline-nav-button" type="button" onclick="showLearningHome()">📈 MINHA TRILHA</button>
+        <button id="joca-back-button" class="back-button" onclick="goBackFromGame()">← MUNDOS</button>
+      </div>
     </div>
     <div class="game-content" id="game-content">
       <div class="loading">Carregando dados...</div>
@@ -701,6 +725,15 @@
     function switchScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
+    }
+
+    // Abrir a tela inicial permite consultar a trilha sem perder o progresso salvo.
+    function showLearningHome() {
+      if (typeof window.renderJocaLearningTimeline === 'function') {
+        window.renderJocaLearningTimeline();
+      }
+      switchScreen('screen-title');
+      document.querySelector('.start-button')?.focus();
     }
 
     // Show world selection
