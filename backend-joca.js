@@ -23,12 +23,20 @@ const configuredOrigins = (process.env.FRONTEND_URL || '')
   .filter(Boolean);
 const allowedOrigins = new Set([...defaultAllowedOrigins, ...configuredOrigins]);
 
+function isAllowedOrigin(origin) {
+  if (!origin || allowedOrigins.has(origin)) return true;
+  try {
+    const parsed = new URL(origin);
+    // Permite previews do projeto Joca no time Vercel, sem liberar outros projetos.
+    return parsed.protocol === 'https:' &&
+      /^joca-silaba-git-[a-z0-9-]+-felipes-projects-40f5c060\.vercel\.app$/i.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
 app.use(cors({
-  origin: (origin, callback) => {
-    // Permite chamadas sem Origin (ex.: health-check por CLI) e as origens conhecidas.
-    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-    return callback(new Error('Origem não permitida pelo CORS'));
-  },
+  origin: (origin, callback) => callback(null, isAllowedOrigin(origin)),
   credentials: true
 }));
 
