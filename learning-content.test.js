@@ -15,7 +15,7 @@ function normalizeWord(value) {
   return String(value || '')
     .normalize('NFC')
     .toLocaleLowerCase('pt-BR')
-    .replace(/[^\\p{L}\\p{N}]/gu, '');
+    .replace(/[^a-záàâãéêíóôõúüç0-9]/gi, '');
 }
 
 describe('integridade do conteúdo pedagógico do Joca', () => {
