@@ -98,7 +98,7 @@ class GameClient {
       }));
     }
 
-    let match = endpoint.match(/^\\/api\\/worlds\\/([^/]+)\\/monsters(?:\\/([^/]+))?$/);
+    let match = endpoint.match(/^\/api\/worlds\/([^/]+)\/monsters(?:\/([^/]+))?$/);
     if (match) {
       const world = worlds[decodeURIComponent(match[1])];
       if (!world) return null;
@@ -114,7 +114,7 @@ class GameClient {
       };
     }
 
-    match = endpoint.match(/^\\/api\\/worlds\\/([^/]+)\\/boss$/);
+    match = endpoint.match(/^\/api\/worlds\/([^/]+)\/boss$/);
     if (match) {
       const world = worlds[decodeURIComponent(match[1])];
       if (!world) return null;
