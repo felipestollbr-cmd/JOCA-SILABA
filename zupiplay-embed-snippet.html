@@ -1,0 +1,47 @@
+<!-- ZUPIPLAY / JOCA: snippet de catálogo e player de TV.
+     Copie para a página de catálogo onde o ZupiPlay lista jogos.
+     Ver ZUPIPLAY-INTEGRACAO.md para origem segura, produção e testes.
+-->
+<button id="zupiplay-joca-card" type="button">
+  <span aria-hidden="true">🎮</span>
+  <strong>Joca — Sílaba Aventura</strong>
+  <span>Aprenda letras, sílabas e leitura em uma aventura</span>
+  <span>Jogar na TV</span>
+</button>
+
+<section id="zupiplay-joca-player" hidden aria-label="Jogo Joca">
+  <button id="zupiplay-joca-close" type="button">← Voltar ao ZupiPlay</button>
+  <iframe id="zupiplay-joca-frame" title="Joca — Sílaba Aventura"
+    src="about:blank" allow="fullscreen; autoplay" allowfullscreen loading="lazy"></iframe>
+</section>
+
+<style>
+  #zupiplay-joca-player[hidden] { display:none !important; }
+  #zupiplay-joca-player { position:fixed; inset:0; z-index:9999; width:100vw; height:100dvh; background:#10172a; display:flex; flex-direction:column; }
+  #zupiplay-joca-close { min-height:52px; padding:12px 22px; flex:0 0 auto; border:0; background:#202f52; color:white; font-size:1.1rem; }
+  #zupiplay-joca-frame { border:0; display:block; width:100%; flex:1 1 auto; min-height:0; }
+  #zupiplay-joca-card, #zupiplay-joca-close { cursor:pointer; }
+  #zupiplay-joca-card:focus-visible, #zupiplay-joca-close:focus-visible { outline:4px solid #9ce7ff; outline-offset:4px; }
+</style>
+
+<script>
+(() => {
+  const TEST_URL = 'https://joca-silaba-git-feat-combate-s-47b7e7-felipes-projects-40f5c060.vercel.app/?mode=tv&embed=zupiplay';
+  const card = document.getElementById('zupiplay-joca-card');
+  const player = document.getElementById('zupiplay-joca-player');
+  const frame = document.getElementById('zupiplay-joca-frame');
+  const close = document.getElementById('zupiplay-joca-close');
+  function closeJoca() {
+    player.hidden = true; frame.src = 'about:blank'; card.focus();
+  }
+  card.addEventListener('click', () => { player.hidden = false; frame.src = TEST_URL; close.focus(); });
+  close.addEventListener('click', closeJoca);
+  window.addEventListener('message', (event) => {
+    if (event.origin !== new URL(TEST_URL).origin) return;
+    if (event.data?.type === 'ZUPIPLAY_EXIT_GAME' && event.data?.game === 'joca') closeJoca();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (!player.hidden && ['Escape', 'BrowserBack'].includes(event.key)) closeJoca();
+  });
+})();
+</script>
