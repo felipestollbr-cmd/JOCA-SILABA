@@ -1145,7 +1145,9 @@
       }
       const summary = document.getElementById('timeline-summary');
       if (summary) {
-        if (data.attempts === 0) {
+        if (data.attempts === 0 && data.legacyAttempts > 0) {
+          summary.textContent = 'Seu histórico anterior foi preservado (' + data.legacyAttempts + ' acertos). O novo acompanhamento começa agora para registrar tentativas, pistas e palavras diferentes.';
+        } else if (data.attempts === 0) {
           summary.textContent = 'Sua aventura começa aqui. O Joca vai observar suas tentativas para sugerir o próximo desafio.';
         } else if (data.percent === 100) {
           summary.textContent = 'Ótimo trabalho! Há evidências consistentes nas habilidades desta trilha. Continue praticando em novas palavras e textos.';
