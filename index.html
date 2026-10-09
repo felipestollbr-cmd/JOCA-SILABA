@@ -440,6 +440,56 @@
       .combat-action { padding:11px 10px; font-size:.78rem; }
     }
 
+  
+    /* ═══ MODO TV / ZUPIPLAY / CONTROLE ═══ */
+    body.joca-tv-mode { min-height:100dvh; }
+    body.joca-tv-mode .screen { height:100dvh; }
+    body.joca-tv-mode #screen-title { padding:2vh 2vw; }
+    body.joca-tv-mode .title-container { width:min(94vw,1200px); animation:none; }
+    body.joca-tv-mode .title-game { font-size:clamp(2rem,4.6vw,4.6rem); line-height:1.25; margin:1.5vh 0; }
+    body.joca-tv-mode .title-subtitle { font-size:clamp(1rem,1.5vw,1.5rem); line-height:1.5; }
+    body.joca-tv-mode .learning-path-wrap { width:min(760px,82vw); margin-top:2vh; gap:1vh; }
+    body.joca-tv-mode .learning-path-label { font-size:clamp(.9rem,1.2vw,1.2rem); }
+    body.joca-tv-mode .learning-path-select { padding:1.5vh 1.5vw; font-size:clamp(1.1rem,1.5vw,1.5rem); min-height:58px; }
+    body.joca-tv-mode .learning-path-description { font-size:clamp(1rem,1.25vw,1.3rem); max-width:760px; }
+    body.joca-tv-mode .start-button { font-size:clamp(1rem,1.6vw,1.7rem); padding:2vh 2.6vw; margin-top:2vh; }
+    body.joca-tv-mode .install-button { display:none !important; }
+    body.joca-tv-mode #screen-worlds { justify-content:flex-start; padding:2vh 2vw; overflow-y:auto; }
+    body.joca-tv-mode #screen-worlds h1 { font-size:clamp(1.3rem,2vw,2rem) !important; margin:1vh 0 2vh !important; }
+    body.joca-tv-mode .worlds-container { grid-template-columns:repeat(3,minmax(0,1fr)); max-width:1500px; padding:1vh 2vw 2vh; gap:2vh 1.5vw; }
+    body.joca-tv-mode .world-card { aspect-ratio:16 / 7; min-height:130px; font-size:clamp(1.1rem,1.7vw,1.8rem); border-width:4px; }
+    body.joca-tv-mode .world-emoji { font-size:clamp(2.4rem,4vw,4rem); margin-bottom:1vh; }
+    body.joca-tv-mode .game-header { padding:1.5vh 2vw; }
+    body.joca-tv-mode .world-title { font-size:clamp(1rem,1.6vw,1.6rem); }
+    body.joca-tv-mode .back-button { padding:1.4vh 1.6vw; font-size:clamp(.85rem,1.1vw,1.1rem); min-height:50px; }
+    body.joca-tv-mode .game-content { flex-direction:row; flex-wrap:wrap; align-content:flex-start; justify-content:center; gap:1vh 1vw; padding:2vh 2vw; }
+    body.joca-tv-mode .monster-section { max-width:min(44vw,600px); margin:1vh .5vw; padding:2vh 2vw; }
+    body.joca-tv-mode .monster-title { font-size:clamp(1rem,1.3vw,1.4rem); }
+    body.joca-tv-mode .monster-emoji { font-size:clamp(2.5rem,4vw,4rem); margin:1vh 0; }
+    body.joca-tv-mode .monster-info { font-size:clamp(1rem,1.15vw,1.2rem); }
+    body.joca-tv-mode .fight-button { padding:1.5vh 1.8vw; font-size:clamp(.9rem,1.1vw,1.2rem); }
+    body.joca-tv-mode .monsters-grid { max-width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1vh 1vw; }
+    body.joca-tv-mode .small-monster { padding:1.5vh 1vw; }
+    body.joca-tv-mode .small-monster-emoji { font-size:clamp(1.8rem,2.5vw,2.6rem); }
+    body.joca-tv-mode .small-monster-name { font-size:clamp(.8rem,1vw,1rem); }
+    body.joca-tv-mode .small-monster-hp { font-size:clamp(.7rem,.85vw,.9rem); }
+    body.joca-tv-mode .combat-card { width:min(1120px,96vw); max-height:94dvh; padding:clamp(18px,2vw,32px); }
+    body.joca-tv-mode .combat-heading { font-size:clamp(1.1rem,1.5vw,1.6rem); }
+    body.joca-tv-mode .duel-emoji { font-size:clamp(3.2rem,5vw,5.5rem); }
+    body.joca-tv-mode .duel-label { font-size:clamp(1rem,1.5vw,1.5rem); }
+    body.joca-tv-mode .combat-instruction { font-size:clamp(1.2rem,2vw,2rem); }
+    body.joca-tv-mode .combat-word, body.joca-tv-mode .syllable-chip { font-size:clamp(1.1rem,1.5vw,1.5rem); }
+    body.joca-tv-mode .syllable-chip { padding:1.5vh 1.4vw; min-height:56px; }
+    body.joca-tv-mode .combat-action { font-size:clamp(1rem,1.2vw,1.25rem); padding:1.5vh 1.5vw; min-height:54px; }
+    body.joca-tv-mode .combat-feedback { font-size:clamp(1rem,1.3vw,1.4rem); }
+    body.joca-tv-mode :focus-visible { outline:5px solid #9ce7ff; outline-offset:5px; box-shadow:0 0 0 3px #17213a; }
+    @media (max-width: 900px) {
+      body.joca-tv-mode .worlds-container { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      body.joca-tv-mode .world-card { aspect-ratio:16 / 9; }
+      body.joca-tv-mode .monster-section { max-width:94vw; }
+      body.joca-tv-mode .monsters-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+
   </style>
 </head>
 <body>
@@ -473,7 +523,7 @@
   <div id="screen-game" class="screen">
     <div class="game-header">
       <div class="world-title" id="game-world-title">MUNDO</div>
-      <button class="back-button" onclick="showWorlds()">← MUNDOS</button>
+      <button id="joca-back-button" class="back-button" onclick="goBackFromGame()">← MUNDOS</button>
     </div>
     <div class="game-content" id="game-content">
       <div class="loading">Carregando dados...</div>
@@ -735,6 +785,143 @@
         learningPathDescriptions[learningPathSelect.value];
     } catch (error) {
       console.warn('A preferência da trilha não pôde ser salva neste navegador.', error);
+    }
+  </script>
+
+  <script>
+    // TV / ZupiPlay mode: fit a 16:9 screen and support remote/gamepad navigation.
+    const jocaUrlParams = new URLSearchParams(window.location.search);
+    const JOCA_TV_MODE = ['tv', '1', 'true'].includes((jocaUrlParams.get('mode') || '').toLowerCase());
+    const JOCA_EMBEDDED = jocaUrlParams.get('embed') === 'zupiplay';
+    if (JOCA_TV_MODE || JOCA_EMBEDDED) document.body.classList.add('joca-tv-mode');
+
+    const jocaBackButton = document.getElementById('joca-back-button');
+    if (JOCA_EMBEDDED) jocaBackButton.textContent = '← VOLTAR AO ZUPIPLAY';
+
+    function goBackFromGame() {
+      if (JOCA_EMBEDDED && window.parent !== window) {
+        try {
+          const parentOrigin = new URL(document.referrer).origin;
+          window.parent.postMessage({ type: 'ZUPIPLAY_EXIT_GAME', game: 'joca' }, parentOrigin);
+          return;
+        } catch (_) {
+          // Sem origem de incorporação identificável: retorna ao seletor interno.
+        }
+      }
+      showWorlds();
+    }
+
+    function getJocaFocusableElements() {
+      return Array.from(document.querySelectorAll(
+        'button:not([disabled]), select:not([disabled]), [role="button"][tabindex="0"], .syllable-chip:not([disabled])'
+      )).filter((element) => {
+        if (element.hidden || element.closest('[hidden]')) return false;
+        const rects = element.getClientRects();
+        return rects.length > 0 && getComputedStyle(element).visibility !== 'hidden';
+      });
+    }
+
+    function moveJocaFocus(direction) {
+      const elements = getJocaFocusableElements();
+      if (!elements.length) return;
+      const active = document.activeElement;
+      if (!active || !elements.includes(active)) {
+        elements[0].focus();
+        return;
+      }
+      const sourceRect = active.getBoundingClientRect();
+      const sourceX = sourceRect.left + sourceRect.width / 2;
+      const sourceY = sourceRect.top + sourceRect.height / 2;
+      const candidates = elements.filter((el) => el !== active).map((el) => {
+        const rect = el.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const dx = x - sourceX;
+        const dy = y - sourceY;
+        const primary = direction === 'left' ? -dx : direction === 'right' ? dx :
+          direction === 'up' ? -dy : dy;
+        const cross = direction === 'left' || direction === 'right' ? Math.abs(dy) : Math.abs(dx);
+        return { el, primary, cross, score: primary + cross * 1.7 };
+      }).filter((item) => item.primary > 2).sort((a, b) => a.score - b.score);
+
+      if (candidates.length) {
+        candidates[0].el.focus();
+        candidates[0].el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      } else {
+        const index = elements.indexOf(active);
+        const delta = direction === 'left' || direction === 'up' ? -1 : 1;
+        const next = elements[(index + delta + elements.length) % elements.length];
+        next.focus();
+        next.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+    }
+
+    function handleJocaBackAction() {
+      const overlay = document.getElementById('combat-overlay');
+      if (overlay && !overlay.hidden) {
+        document.getElementById('close-combat').click();
+        return;
+      }
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen && activeScreen.id === 'screen-game') goBackFromGame();
+      else if (activeScreen && activeScreen.id === 'screen-worlds') {
+        switchScreen('screen-title');
+        document.querySelector('.start-button')?.focus();
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (!JOCA_TV_MODE && !JOCA_EMBEDDED) return;
+      if (event.target && ['SELECT', 'INPUT', 'TEXTAREA'].includes(event.target.tagName)) {
+        if (event.key !== 'Escape' && event.key !== 'Backspace') return;
+      }
+      const directionKeys = {
+        ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down'
+      };
+      if (directionKeys[event.key]) {
+        event.preventDefault();
+        moveJocaFocus(directionKeys[event.key]);
+      } else if (event.key === 'Escape' || event.key === 'BrowserBack' ||
+                 event.key === 'GoBack' || event.key === 'Backspace') {
+        event.preventDefault();
+        handleJocaBackAction();
+      }
+    });
+
+    // Optional physical gamepad support where the TV browser/WebView exposes Gamepad API.
+    if ((JOCA_TV_MODE || JOCA_EMBEDDED) && navigator.getGamepads) {
+      let previousButtons = [];
+      let lastAxisMove = 0;
+      function pollJocaGamepad() {
+        const pads = navigator.getGamepads();
+        const pad = pads && Array.from(pads).find(Boolean);
+        if (pad) {
+          const pressed = (index) => Boolean(pad.buttons[index] && pad.buttons[index].pressed);
+          const edge = (index) => {
+            const value = pressed(index);
+            const wasPressed = Boolean(previousButtons[index]);
+            previousButtons[index] = value;
+            return value && !wasPressed;
+          };
+          let direction = null;
+          if (edge(14) || pad.axes[0] < -0.7) direction = 'left';
+          else if (edge(15) || pad.axes[0] > 0.7) direction = 'right';
+          else if (edge(12) || pad.axes[1] < -0.7) direction = 'up';
+          else if (edge(13) || pad.axes[1] > 0.7) direction = 'down';
+          const now = performance.now();
+          if (direction && now - lastAxisMove > 220) {
+            moveJocaFocus(direction);
+            lastAxisMove = now;
+          }
+          if (edge(0)) document.activeElement?.click();
+          if (edge(1) || edge(8)) handleJocaBackAction();
+        }
+        requestAnimationFrame(pollJocaGamepad);
+      }
+      window.addEventListener('gamepadconnected', () => {
+        previousButtons = [];
+        requestAnimationFrame(pollJocaGamepad);
+      }, { once: true });
     }
   </script>
 
