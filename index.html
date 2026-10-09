@@ -2,8 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#5c94fc">
+  <meta name="application-name" content="Sílaba Aventura com o Joca">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Joca">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/icon-joca.svg">
+  <link rel="apple-touch-icon" href="/icon-joca.svg">
   <title>Sílaba Aventura com o Joca</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
@@ -46,8 +52,22 @@
       letter-spacing: 1px;
     }
     
+    .learning-path-wrap {
+      display:flex; flex-direction:column; align-items:center; gap:10px;
+      width:min(460px, 92vw); margin:22px auto 0; font-family:'Fredoka One',cursive;
+    }
+    .learning-path-label { color:#fff; font-size:.82rem; letter-spacing:1px; }
+    .learning-path-select {
+      width:100%; padding:12px 14px; border:2px solid #f8b800; border-radius:10px;
+      background:#fff; color:#1a1a2e; font:600 1rem 'Fredoka One',cursive; cursor:pointer;
+    }
+    .learning-path-description {
+      color:#f6edff; font: .95rem/1.45 'Fredoka One',cursive; max-width:430px;
+      text-shadow:0 1px 2px rgba(0,0,0,.35); padding:0 6px;
+    }
+
     .start-button {
-      margin-top: 40px;
+      margin-top: 24px;
       padding: 15px 40px;
       font-size: 1.2rem;
       background: linear-gradient(135deg, #f8b800 0%, #ff6b35 100%);
@@ -70,6 +90,13 @@
       transform: translateY(0px);
       box-shadow: 0 0 0 #c84c0c;
     }
+    .install-button {
+      margin-top: 14px; padding: 11px 18px; border: 2px solid rgba(255,255,255,.8);
+      border-radius: 10px; color: #fff; background: rgba(26,26,46,.24);
+      font: .68rem 'Press Start 2P',monospace; cursor:pointer;
+    }
+    .install-button[hidden] { display:none !important; }
+    .install-button:hover { background:rgba(26,26,46,.5); }
     
     /* ═══ WORLD SELECT ═══ */
     #screen-worlds {
@@ -113,6 +140,11 @@
     .world-card:hover {
       transform: scale(1.05);
       box-shadow: 0 0 20px rgba(248, 184, 0, 0.6);
+    }
+    .world-card:focus-visible, .small-monster:focus-visible,
+    button:focus-visible, select:focus-visible {
+      outline: 4px solid #9ce7ff;
+      outline-offset: 4px;
     }
     
     .world-card-title {
@@ -323,6 +355,141 @@
     .world-desert { background: linear-gradient(135deg, #F39C12, #d68910); }
     .world-arctic { background: linear-gradient(135deg, #ECF0F1, #bdc3c7); color: #000 !important; }
     .world-forest { background: linear-gradient(135deg, #27AE60, #1e8449); }
+
+    /* ═══ COMBATE INTERATIVO ═══ */
+    #combat-overlay[hidden] { display: none !important; }
+    .combat-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; overflow-y: auto;
+      background: rgba(4, 8, 22, .88); backdrop-filter: blur(8px);
+    }
+    .combat-card {
+      width: min(760px, 100%); max-height: 96vh; overflow-y: auto;
+      color: #fff; background: linear-gradient(145deg, #202f52, #111a32);
+      border: 3px solid #f8b800; border-radius: 22px; padding: 22px;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      font-family: 'Fredoka One', cursive;
+    }
+    .combat-heading { display:flex; align-items:center; justify-content:space-between; gap:12px;
+      color:#f8b800; font-size:clamp(.8rem,2.5vw,1.15rem); margin-bottom:18px; }
+    .combat-close { border:0; border-radius:50%; width:38px; height:38px; cursor:pointer;
+      background:#3a496b; color:#fff; font-size:1.5rem; }
+    .duel-row { display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center; }
+    .duel-person { min-width:0; text-align:center; padding:14px 10px; border-radius:15px;
+      background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.14); }
+    .duel-emoji { font-size:clamp(2.8rem,8vw,4.5rem); margin:4px 0 10px; }
+    .duel-label { font-size:clamp(.75rem,2.7vw,1rem); line-height:1.4; overflow-wrap:anywhere; }
+    .health-track { height:13px; margin:10px 0 6px; border-radius:99px; overflow:hidden; background:#101523;
+      border:1px solid rgba(255,255,255,.25); }
+    .health-fill { height:100%; width:100%; transition:width .3s ease; background:linear-gradient(90deg,#43d17d,#a4f25c); }
+    .health-fill.enemy { background:linear-gradient(90deg,#ff594f,#ffad42); }
+    .health-label { color:#d6e1f6; font-size:.78rem; }
+    .versus { color:#f8b800; font-family:'Press Start 2P',monospace; font-size:.8rem; }
+    .challenge-panel { margin-top:18px; border-radius:16px; background:rgba(0,0,0,.19); padding:18px; }
+    .challenge-badge { display:inline-block; border-radius:999px; background:#f8b800; color:#17213a;
+      font-size:.72rem; padding:7px 11px; margin-bottom:10px; }
+    .combat-instruction { font-size:clamp(1rem,3vw,1.35rem); line-height:1.4; margin:4px 0 8px; }
+    .combat-word { color:#9ce7ff; font-size:1.05rem; margin-bottom:14px; }
+    .combat-word.reading-passage {
+      color:#fff; text-align:left; font:1.05rem/1.7 'Fredoka One',cursive;
+      background:rgba(156,231,255,.08); border-left:4px solid #9ce7ff;
+      border-radius:0 10px 10px 0; padding:12px 14px; white-space:normal;
+    }
+    .syllable-options, .syllable-answer { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:9px; min-height:44px; }
+    .syllable-chip { border:2px solid #70b8ff; border-radius:12px; padding:12px 16px; min-width:54px;
+      color:#fff; background:#244575; font:inherit; font-size:1.05rem; cursor:pointer; box-shadow:0 3px 0 #142c50; }
+    .syllable-chip:hover:not(:disabled) { transform:translateY(-2px); background:#32619c; }
+    .syllable-chip:disabled { opacity:.4; cursor:default; }
+    .syllable-chip.answer-chip { color:#13203a; background:#f8b800; border-color:#ffda5d; box-shadow:0 3px 0 #b77c00; }
+    .answer-label { text-align:center; margin:17px 0 8px; font-size:.8rem; color:#c8d6f5; }
+    .answer-empty { color:#91a3c8; font-size:.85rem; }
+    .combat-feedback { min-height:28px; margin:14px 0; text-align:center; font-size:1rem; line-height:1.5; color:#fff; }
+    .combat-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+    .combat-action { padding:12px 16px; border:0; border-radius:10px; cursor:pointer; font:inherit; font-size:.85rem; }
+    .combat-action.secondary { background:#334466; color:#fff; }
+    .combat-action.primary { background:linear-gradient(135deg,#f8b800,#ff8137); color:#1a2030; font-weight:bold; }
+    .combat-action:disabled { opacity:.45; cursor:not-allowed; }
+    .combat-xp { margin-top:16px; text-align:center; color:#ffd95d; font-size:.9rem; }
+    @media (max-width: 600px) {
+      .title-game { font-size:clamp(1.15rem,5vw,2rem); }
+      .title-subtitle { font-size:.65rem; line-height:1.7; padding:0 14px; }
+      .learning-path-wrap { margin-top:12px; gap:8px; }
+      .learning-path-label { font-size:.65rem; }
+      .learning-path-select { font-size:.82rem; padding:10px; }
+      .learning-path-description { font-size:.76rem; line-height:1.45; }
+      .start-button { padding:14px 20px; font-size:.72rem; margin-top:16px; }
+      #screen-worlds { overflow-y:auto; justify-content:flex-start; padding:28px 0; }
+      .worlds-container { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:14px; }
+      .world-card { aspect-ratio:auto; min-height:125px; border-width:3px; font-size:.82rem; }
+      .world-emoji { font-size:2.1rem; }
+      #screen-worlds h1 { font-size:1.05rem !important; text-align:center; margin:0 12px 14px !important; }
+      .game-header { padding:12px; gap:10px; }
+      .world-title { font-size:.72rem; letter-spacing:0; }
+      .back-button { font-size:.62rem; }
+      .game-content { padding:14px 10px; }
+      .monster-section { padding:16px 12px; margin:8px 0; }
+      .combat-overlay { padding:8px; }
+      .combat-card { padding:13px; border-radius:16px; }
+      .duel-row { gap:6px; }
+      .duel-person { padding:10px 5px; }
+      .health-track { height:10px; }
+      .challenge-panel { padding:12px 8px; }
+      .syllable-chip { padding:10px 12px; min-width:46px; }
+      .combat-actions { gap:7px; }
+      .combat-action { padding:11px 10px; font-size:.78rem; }
+    }
+
+  
+    /* ═══ MODO TV / ZUPIPLAY / CONTROLE ═══ */
+    body.joca-tv-mode { min-height:100dvh; }
+    body.joca-tv-mode .screen { height:100dvh; }
+    body.joca-tv-mode #screen-title { padding:2vh 2vw; }
+    body.joca-tv-mode .title-container { width:min(94vw,1200px); animation:none; }
+    body.joca-tv-mode .title-game { font-size:clamp(2rem,4.6vw,4.6rem); line-height:1.25; margin:1.5vh 0; }
+    body.joca-tv-mode .title-subtitle { font-size:clamp(1rem,1.5vw,1.5rem); line-height:1.5; }
+    body.joca-tv-mode .learning-path-wrap { width:min(760px,82vw); margin-top:2vh; gap:1vh; }
+    body.joca-tv-mode .learning-path-label { font-size:clamp(.9rem,1.2vw,1.2rem); }
+    body.joca-tv-mode .learning-path-select { padding:1.5vh 1.5vw; font-size:clamp(1.1rem,1.5vw,1.5rem); min-height:58px; }
+    body.joca-tv-mode .learning-path-description { font-size:clamp(1rem,1.25vw,1.3rem); max-width:760px; }
+    body.joca-tv-mode .start-button { font-size:clamp(1rem,1.6vw,1.7rem); padding:2vh 2.6vw; margin-top:2vh; }
+    body.joca-tv-mode .install-button { display:none !important; }
+    body.joca-tv-mode #screen-worlds { justify-content:flex-start; padding:2vh 2vw; overflow-y:auto; }
+    body.joca-tv-mode #screen-worlds h1 { font-size:clamp(1.3rem,2vw,2rem) !important; margin:1vh 0 2vh !important; }
+    body.joca-tv-mode .worlds-container { grid-template-columns:repeat(3,minmax(0,1fr)); max-width:1500px; padding:1vh 2vw 2vh; gap:2vh 1.5vw; }
+    body.joca-tv-mode .world-card { aspect-ratio:16 / 7; min-height:130px; font-size:clamp(1.1rem,1.7vw,1.8rem); border-width:4px; }
+    body.joca-tv-mode .world-emoji { font-size:clamp(2.4rem,4vw,4rem); margin-bottom:1vh; }
+    body.joca-tv-mode .game-header { padding:1.5vh 2vw; }
+    body.joca-tv-mode .world-title { font-size:clamp(1rem,1.6vw,1.6rem); }
+    body.joca-tv-mode .back-button { padding:1.4vh 1.6vw; font-size:clamp(.85rem,1.1vw,1.1rem); min-height:50px; }
+    body.joca-tv-mode .game-content { flex-direction:row; flex-wrap:wrap; align-content:flex-start; justify-content:center; gap:1vh 1vw; padding:2vh 2vw; }
+    body.joca-tv-mode .monster-section { max-width:min(44vw,600px); margin:1vh .5vw; padding:2vh 2vw; }
+    body.joca-tv-mode .monster-title { font-size:clamp(1rem,1.3vw,1.4rem); }
+    body.joca-tv-mode .monster-emoji { font-size:clamp(2.5rem,4vw,4rem); margin:1vh 0; }
+    body.joca-tv-mode .monster-info { font-size:clamp(1rem,1.15vw,1.2rem); }
+    body.joca-tv-mode .fight-button { padding:1.5vh 1.8vw; font-size:clamp(.9rem,1.1vw,1.2rem); }
+    body.joca-tv-mode .monsters-grid { max-width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1vh 1vw; }
+    body.joca-tv-mode .small-monster { padding:1.5vh 1vw; }
+    body.joca-tv-mode .small-monster-emoji { font-size:clamp(1.8rem,2.5vw,2.6rem); }
+    body.joca-tv-mode .small-monster-name { font-size:clamp(.8rem,1vw,1rem); }
+    body.joca-tv-mode .small-monster-hp { font-size:clamp(.7rem,.85vw,.9rem); }
+    body.joca-tv-mode .combat-card { width:min(1120px,96vw); max-height:94dvh; padding:clamp(18px,2vw,32px); }
+    body.joca-tv-mode .combat-heading { font-size:clamp(1.1rem,1.5vw,1.6rem); }
+    body.joca-tv-mode .duel-emoji { font-size:clamp(3.2rem,5vw,5.5rem); }
+    body.joca-tv-mode .duel-label { font-size:clamp(1rem,1.5vw,1.5rem); }
+    body.joca-tv-mode .combat-instruction { font-size:clamp(1.2rem,2vw,2rem); }
+    body.joca-tv-mode .combat-word, body.joca-tv-mode .syllable-chip { font-size:clamp(1.1rem,1.5vw,1.5rem); }
+    body.joca-tv-mode .syllable-chip { padding:1.5vh 1.4vw; min-height:56px; }
+    body.joca-tv-mode .combat-action { font-size:clamp(1rem,1.2vw,1.25rem); padding:1.5vh 1.5vw; min-height:54px; }
+    body.joca-tv-mode .combat-feedback { font-size:clamp(1rem,1.3vw,1.4rem); }
+    body.joca-tv-mode :focus-visible { outline:5px solid #9ce7ff; outline-offset:5px; box-shadow:0 0 0 3px #17213a; }
+    @media (max-width: 900px) {
+      body.joca-tv-mode .worlds-container { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      body.joca-tv-mode .world-card { aspect-ratio:16 / 9; }
+      body.joca-tv-mode .monster-section { max-width:94vw; }
+      body.joca-tv-mode .monsters-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+
   
     /* JOCA: personagem principal compartilhado entre a tela inicial e a aventura. */
     .title-container {
@@ -376,6 +543,56 @@
     body.joca-tv-mode .joca-header-avatar { width:clamp(58px,5.4vw,78px); height:clamp(66px,6.2vw,90px); }
     body.joca-tv-mode .joca-combat-character { width:clamp(100px,10vw,140px); height:clamp(116px,15vh,154px); }
 
+
+    /* Linha do tempo da aprendizagem: marcos persistentes neste dispositivo. */
+    .learning-timeline {
+      width:min(760px,100%); margin:14px auto 0; padding:12px 14px;
+      border:1px solid rgba(255,255,255,.22); border-radius:16px;
+      background:rgba(20,25,58,.34); color:#fff; font-family:'Fredoka One',cursive;
+      text-align:left; box-shadow:0 6px 18px rgba(12,14,48,.12);
+    }
+    .timeline-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .timeline-top h2 { color:#ffe08a; font-size:clamp(.7rem,1.12vw,.98rem); line-height:1.4; letter-spacing:.2px; }
+    .timeline-summary { margin-top:3px; color:#f1eaff; font-size:clamp(.72rem,.9vw,.88rem); line-height:1.4; }
+    .timeline-percent { flex:0 0 auto; font-size:clamp(1.2rem,1.8vw,1.7rem); color:#ffd45b; }
+    .timeline-overall-track { height:7px; margin:10px 0 12px; background:rgba(255,255,255,.17); border-radius:99px; overflow:hidden; }
+    .timeline-overall-fill { height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#48d9a0,#ffd45b); transition:width .3s ease; }
+    .timeline-steps { margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; position:relative; }
+    .timeline-steps::before { content:""; position:absolute; z-index:0; left:16.6%; right:16.6%; top:15px; height:3px; background:#576786; border-radius:99px; }
+    .timeline-step { min-width:0; padding:0 8px 9px; position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; gap:5px;
+      border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(4,10,34,.22); }
+    .timeline-node { width:31px; height:31px; margin:0 0 3px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+      border:2px solid #8491aa; border-radius:50%; color:#fff; background:#344464; font-size:.85rem; font-weight:bold; position:relative; z-index:1; }
+    .timeline-step h3 { color:#fff; font-size:clamp(.78rem,1vw,.94rem); line-height:1.25; }
+    .timeline-step p { color:#dce5ff; font-size:clamp(.7rem,.82vw,.8rem); line-height:1.3; margin:0; }
+    .timeline-status { margin-top:auto; display:inline-block; padding:4px 7px; border-radius:999px; background:rgba(255,255,255,.09); color:#e2eaff; font-size:clamp(.65rem,.76vw,.73rem); line-height:1.2; }
+    .timeline-step.is-current { border-color:#9ce7ff; background:rgba(79,167,217,.15); box-shadow:0 0 0 1px rgba(156,231,255,.16); }
+    .timeline-step.is-current .timeline-node { color:#182440; background:#9ce7ff; border-color:#fff; box-shadow:0 0 0 3px rgba(156,231,255,.15); }
+    .timeline-step.is-current .timeline-status { color:#10213f; background:#9ce7ff; }
+    .timeline-step.is-complete { border-color:rgba(86,225,168,.55); }
+    .timeline-step.is-complete .timeline-node { background:#3cbd89; border-color:#a7f4d4; color:#102b35; }
+    .timeline-step.is-complete .timeline-status { background:rgba(60,189,137,.18); color:#baf8df; }
+    .timeline-footnote { margin-top:7px; color:#d3d8ef; text-align:right; font-size:.67rem; line-height:1.3; }
+    body.joca-tv-mode .learning-timeline { max-width:900px; padding:14px 16px; margin-top:1.4vh; }
+    body.joca-tv-mode .timeline-top h2 { font-size:clamp(1rem,1.2vw,1.25rem); }
+    body.joca-tv-mode .timeline-summary { font-size:clamp(.9rem,1vw,1.05rem); }
+    body.joca-tv-mode .timeline-step h3 { font-size:clamp(1rem,1.2vw,1.2rem); }
+    body.joca-tv-mode .timeline-step p { font-size:clamp(.85rem,1vw,1rem); }
+    body.joca-tv-mode .timeline-status { font-size:clamp(.78rem,.9vw,.9rem); }
+    @media (max-width:680px) {
+      .learning-timeline { margin-top:10px; padding:10px; }
+      .timeline-top h2 { font-size:.75rem; }
+      .timeline-summary { font-size:.75rem; }
+      .timeline-percent { font-size:1.2rem; }
+      .timeline-steps { grid-template-columns:1fr; gap:6px; }
+      .timeline-steps::before { left:15px; right:auto; top:17px; bottom:17px; width:3px; height:auto; }
+      .timeline-step { display:grid; grid-template-columns:32px minmax(0,1fr); gap:0 9px; text-align:left; align-items:center; padding:8px; }
+      .timeline-node { grid-row:1 / span 3; margin:0; }
+      .timeline-step h3, .timeline-step p { grid-column:2; }
+      .timeline-status { grid-column:2; justify-self:start; margin-top:3px; }
+      .timeline-footnote { font-size:.62rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -386,15 +603,58 @@
       <div class="title-copy">
       <div class="title-game">🎮 JOCA 🎮</div>
       <div class="title-game">SÍLABA AVENTURA</div>
-      <div class="title-subtitle">Derrote monstros dominando as sílabas!</div>
+      <div class="title-subtitle">Aprenda a ler, formar palavras e compreender textos em uma aventura!</div>
+      <div class="learning-path-wrap">
+        <label class="learning-path-label" for="learning-path">ESCOLHA SUA TRILHA</label>
+        <select id="learning-path" class="learning-path-select" aria-describedby="learning-path-description">
+          <option value="descobrir">1 · Descobrir palavras</option>
+          <option value="construir">2 · Construir frases</option>
+          <option value="compreender">3 · Ler e compreender</option>
+        </select>
+        <p id="learning-path-description" class="learning-path-description">Letras, sílabas e formação de palavras. Sem cronômetro, com dicas para aprender.</p>
+      </div>
+      <section id="learning-timeline" class="learning-timeline" role="region" aria-labelledby="timeline-title">
+        <div class="timeline-top">
+          <div>
+            <h2 id="timeline-title">SUA LINHA DO TEMPO DE APRENDIZAGEM</h2>
+            <p id="timeline-summary" class="timeline-summary">Conclua desafios para acompanhar sua evolução.</p>
+          </div>
+          <strong id="timeline-percent" class="timeline-percent">0%</strong>
+        </div>
+        <div class="timeline-overall-track" role="progressbar" aria-label="Progresso total de aprendizagem" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="timeline-overall-track">
+          <div id="timeline-overall-bar" class="timeline-overall-fill"></div>
+        </div>
+        <ol class="timeline-steps" aria-label="Etapas da aprendizagem">
+          <li class="timeline-step is-current" data-stage="discover" aria-current="step">
+            <span class="timeline-node" aria-hidden="true">1</span>
+            <h3>Descobrir</h3>
+            <p>Letras e sílabas</p>
+            <span id="timeline-discover-status" class="timeline-status">0/4 habilidades</span>
+          </li>
+          <li class="timeline-step" data-stage="build">
+            <span class="timeline-node" aria-hidden="true">2</span>
+            <h3>Construir</h3>
+            <p>Palavras e frases</p>
+            <span id="timeline-build-status" class="timeline-status">0/3 frases</span>
+          </li>
+          <li class="timeline-step" data-stage="read">
+            <span class="timeline-node" aria-hidden="true">3</span>
+            <h3>Compreender</h3>
+            <p>Ler e encontrar informações</p>
+            <span id="timeline-read-status" class="timeline-status">0/3 leituras</span>
+          </li>
+        </ol>
+        <p class="timeline-footnote">Seu progresso fica salvo neste dispositivo.</p>
+      </section>
       <button class="start-button" onclick="showWorlds()">COMEÇAR A AVENTURA</button>
+      <button id="install-app-button" class="install-button" type="button" hidden>INSTALAR NO DISPOSITIVO</button>
       </div>
     </div>
   </div>
 
   <!-- WORLD SELECT SCREEN -->
   <div id="screen-worlds" class="screen">
-    <h1 style="color: #f8b800; margin-bottom: 30px; font-size: 2rem;">CHOOSE YOUR WORLD</h1>
+    <h1 style="color: #f8b800; margin-bottom: 30px; font-size: 2rem;">ESCOLHA SEU MUNDO</h1>
     <div class="worlds-container" id="worlds-list"></div>
   </div>
 
@@ -402,7 +662,7 @@
   <div id="screen-game" class="screen">
     <div class="game-header">
       <div class="game-brand"><img class="joca-header-avatar" src="/joca-character.svg" alt="Joca"><div class="world-title" id="game-world-title">MUNDO</div></div>
-      <button class="back-button" onclick="showWorlds()">← MUNDOS</button>
+      <button id="joca-back-button" class="back-button" onclick="goBackFromGame()">← MUNDOS</button>
     </div>
     <div class="game-content" id="game-content">
       <div class="loading">Carregando dados...</div>
@@ -456,11 +716,20 @@
         for (const world of worlds) {
           const card = document.createElement('div');
           card.className = `world-card world-${world.id}`;
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
+          card.setAttribute('aria-label', 'Entrar no mundo ' + (worldNames[world.id] || world.name));
           card.innerHTML = `
             <div class="world-emoji">${worldEmojis[world.id] || '🌍'}</div>
             <div class="world-card-title">${worldNames[world.id] || world.name}</div>
           `;
           card.onclick = () => loadWorld(world.id);
+          card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              loadWorld(world.id);
+            }
+          });
           worldsList.appendChild(card);
         }
       } catch (error) {
@@ -474,7 +743,7 @@
       currentWorldId = worldId;
       switchScreen('screen-game');
       
-      document.getElementById('game-world-title').textContent = worldNames[worldId] || 'World';
+      document.getElementById('game-world-title').textContent = worldNames[worldId] || 'Mundo';
       document.getElementById('game-content').innerHTML = '<div class="loading">Carregando mundo...</div>';
 
       try {
@@ -501,11 +770,11 @@
       bossSection.className = 'monster-section';
       bossSection.style.borderColor = '#f44';
       bossSection.innerHTML = `
-        <div class="monster-title" style="color: #f44;">👑 BOSS DO MUNDO 👑</div>
+        <div class="monster-title" style="color: #f44;">👑 CHEFE DO MUNDO 👑</div>
         <div class="monster-emoji">${getMonsterEmoji(boss.id)}</div>
         <div class="monster-info">
           <strong>${boss.name}</strong>
-          <div class="boss-warning">⚡ MUITO PERIGOSO! ⚡</div>
+          <div class="boss-warning">⚡ DESAFIO SUPREMO! ⚡</div>
           <div class="monster-stat">
             <span class="stat-label">Vida:</span>
             <span class="stat-value">${boss.health} HP</span>
@@ -527,7 +796,7 @@
             <span class="stat-value">${boss.score} XP</span>
           </div>
         </div>
-        <button class="fight-button" onclick="fightBoss('${boss.id}')">FIGHT BOSS!</button>
+        <button class="fight-button" onclick="fightBoss('${boss.id}')">DESAFIAR CHEFE!</button>
       `;
       content.appendChild(bossSection);
 
@@ -545,6 +814,9 @@
       for (const monster of regularMonsters) {
         const card = document.createElement('div');
         card.className = 'small-monster';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', 'Desafiar ' + monster.name);
         card.innerHTML = `
           <div class="small-monster-emoji">${getMonsterEmoji(monster.id)}</div>
           <div class="small-monster-name">${monster.name}</div>
@@ -552,6 +824,12 @@
           <div class="small-monster-hp">⚔️ ${monster.damage}</div>
         `;
         card.onclick = () => fightMonster(monster.id);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            fightMonster(monster.id);
+          }
+        });
         monstersGrid.appendChild(card);
       }
       
@@ -561,45 +839,320 @@
     // Get emoji for monster
     function getMonsterEmoji(monsterId) {
       const emojis = {
-        'lion': '🦁', 'monkey': '🐵', 'zebra': '🦓',
-        'snake': '🐍', 'jaguar': '🐆', 'parrot': '🦜',
-        'shark': '🦈', 'octopus': '🐙', 'jellyfish': '🪼',
-        'scorpion': '🦂', 'camel': '🐪', 'lizard': '🦎',
-        'polar_bear': '🐻‍❄️', 'penguin': '🐧', 'seal': '🦭',
-        'wolf': '🐺', 'bear': '🐻', 'fox': '🦊'
+        'leao': '🦁', 'macaco': '🐵', 'zebra': '🦓',
+        'cobra': '🐍', 'onca': '🐆', 'papagaio': '🦜',
+        'tubarao': '🦈', 'polvo': '🐙', 'agua_viva': '🪼',
+        'escorpiao': '🦂', 'camelo': '🐪', 'lagarto': '🦎',
+        'urso_polar': '🐻‍❄️', 'pinguim': '🐧', 'foca': '🦭',
+        'lobo': '🐺', 'urso': '🐻', 'raposa': '🦊'
       };
       return emojis[monsterId] || '👹';
     }
 
-    // Fight monster
+    // Combates interativos: os desafios são controlados por combat.js.
     function fightMonster(monsterId) {
-      const monster = currentWorldData.monsters.find(m => m.id === monsterId);
-      alert(`⚔️ DESAFIO DE SÍLABAS ⚔️\n\n` +
-        `${monster.name}\n\n` +
-        `❤️ Vida: ${monster.health}\n` +
-        `⚔️ Poder: ${monster.damage}\n` +
-        `💨 Velocidade: ${monster.speed}\n\n` +
-        `📚 Palavra-Chave: ${monster.vocab.word}\n` +
-        `📖 Pronúncia: ${monster.vocab.pronunciation}\n\n` +
-        `🎯 Ganho: ${monster.score} XP`);
+      const monster = currentWorldData && currentWorldData.monsters.find(m => m.id === monsterId);
+      if (monster) startJocaCombat(monster, false);
     }
 
-    // Fight boss
     function fightBoss(bossId) {
-      const boss = currentWorldData.monsters.find(m => m.id === bossId);
-      alert(`👑 CHEFE SUPREMO! 👑\n\n` +
-        `${boss.name}\n\n` +
-        `❤️ Vida: ${boss.health} (EXTREMA!)\n` +
-        `⚔️ Poder: ${boss.damage} (DEVASTADOR!)\n` +
-        `💨 Velocidade: ${boss.speed}\n\n` +
-        `📚 Palavra-Mestre: ${boss.vocab.word}\n` +
-        `🎯 Ganho: ${boss.score} XP (ENORME!)\n\n` +
-        `⚠️ Comportamento: ${boss.behavior}\n` +
-        `💥 Ataques: ${boss.attacks.join(', ')}`);
+      const boss = currentWorldData && currentWorldData.monsters.find(m => m.id === bossId);
+      if (boss) startJocaCombat(boss, true);
     }
 
     // Initialize
     console.log('🎮 Sílaba Aventura com o Joca carregado! Clique em START para começar.');
   </script>
+
+  <!-- COMBATE EDUCATIVO INTERATIVO -->
+  <div id="combat-overlay" class="combat-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="combat-title">
+    <section class="combat-card">
+      <header class="combat-heading">
+        <span id="combat-title">⚔️ DESAFIO DE SÍLABAS</span>
+        <button id="close-combat" class="combat-close" type="button" aria-label="Fechar batalha">×</button>
+      </header>
+      <div class="duel-row">
+        <article class="duel-person">
+          <img class="duel-emoji joca-combat-character" src="/joca-character.svg" alt="Joca, o aventureiro">
+          <div class="duel-label">JOCA</div>
+          <div class="health-track"><div id="player-health-bar" class="health-fill"></div></div>
+          <div id="player-health-label" class="health-label">100/100 HP</div>
+        </article>
+        <div class="versus">VS</div>
+        <article class="duel-person">
+          <div id="combat-monster-emoji" class="duel-emoji">👹</div>
+          <div id="combat-monster-name" class="duel-label">MONSTRO</div>
+          <div class="health-track"><div id="monster-health-bar" class="health-fill enemy"></div></div>
+          <div id="monster-health-label" class="health-label">0/0 HP</div>
+        </article>
+      </div>
+      <div class="challenge-panel">
+        <div id="combat-challenge-badge" class="challenge-badge">RONDA DE SÍLABAS</div>
+        <h2 id="combat-instruction" class="combat-instruction">Prepare-se para o desafio!</h2>
+        <p id="combat-word" class="combat-word"></p>
+        <div id="syllable-options" class="syllable-options"></div>
+        <div class="answer-label">SUA RESPOSTA</div>
+        <div id="syllable-answer" class="syllable-answer"><span class="answer-empty">Escolha as sílabas acima</span></div>
+        <p id="combat-feedback" class="combat-feedback" aria-live="polite"></p>
+        <div class="combat-actions">
+          <button id="clear-answer" class="combat-action secondary" type="button">Limpar</button>
+          <button id="check-answer" class="combat-action primary" type="button">Conferir resposta</button>
+          <button id="next-round" class="combat-action primary" type="button" hidden>Próxima pergunta</button>
+        </div>
+        <div id="combat-xp" class="combat-xp">⭐ XP conquistado: 0</div>
+      </div>
+    </section>
+  </div>
+  <script src="/learning-content.js"></script>
+  <script src="/combat.js"></script>
+  <script>
+    // Preferência local: a trilha fica guardada neste navegador.
+    const learningPathSelect = document.getElementById('learning-path');
+    const learningPathDescriptions = {
+      descobrir: 'Letras, sílabas e formação de palavras. Sem cronômetro, com dicas para aprender.',
+      construir: 'Pratique letras e sílabas e avance para organizar palavras em frases com espaços e pontuação.',
+      compreender: 'Leia fichas curtas, encontre informações no texto e organize frases com sentido.'
+    };
+    try {
+      const savedPath = localStorage.getItem('joca-learning-path');
+      if (savedPath && learningPathDescriptions[savedPath]) learningPathSelect.value = savedPath;
+      learningPathSelect.addEventListener('change', () => {
+        localStorage.setItem('joca-learning-path', learningPathSelect.value);
+        document.getElementById('learning-path-description').textContent =
+          learningPathDescriptions[learningPathSelect.value];
+      });
+      document.getElementById('learning-path-description').textContent =
+        learningPathDescriptions[learningPathSelect.value];
+    } catch (error) {
+      console.warn('A preferência da trilha não pôde ser salva neste navegador.', error);
+    }
+  </script>
+
+  <script>
+    // TV / ZupiPlay mode: fit a 16:9 screen and support remote/gamepad navigation.
+    const jocaUrlParams = new URLSearchParams(window.location.search);
+    const JOCA_TV_MODE = ['tv', '1', 'true'].includes((jocaUrlParams.get('mode') || '').toLowerCase());
+    const JOCA_EMBEDDED = jocaUrlParams.get('embed') === 'zupiplay';
+    if (JOCA_TV_MODE || JOCA_EMBEDDED) document.body.classList.add('joca-tv-mode');
+
+    const jocaBackButton = document.getElementById('joca-back-button');
+    if (JOCA_EMBEDDED) jocaBackButton.textContent = '← VOLTAR AO ZUPIPLAY';
+
+    function goBackFromGame() {
+      if (JOCA_EMBEDDED && window.parent !== window) {
+        try {
+          const parentOrigin = new URL(document.referrer).origin;
+          window.parent.postMessage({ type: 'ZUPIPLAY_EXIT_GAME', game: 'joca' }, parentOrigin);
+          return;
+        } catch (_) {
+          // Sem origem de incorporação identificável: retorna ao seletor interno.
+        }
+      }
+      showWorlds();
+    }
+
+    function getJocaFocusableElements() {
+      return Array.from(document.querySelectorAll(
+        'button:not([disabled]), select:not([disabled]), [role="button"][tabindex="0"], .syllable-chip:not([disabled])'
+      )).filter((element) => {
+        if (element.hidden || element.closest('[hidden]')) return false;
+        const rects = element.getClientRects();
+        return rects.length > 0 && getComputedStyle(element).visibility !== 'hidden';
+      });
+    }
+
+    function moveJocaFocus(direction) {
+      const elements = getJocaFocusableElements();
+      if (!elements.length) return;
+      const active = document.activeElement;
+      if (!active || !elements.includes(active)) {
+        elements[0].focus();
+        return;
+      }
+      const sourceRect = active.getBoundingClientRect();
+      const sourceX = sourceRect.left + sourceRect.width / 2;
+      const sourceY = sourceRect.top + sourceRect.height / 2;
+      const candidates = elements.filter((el) => el !== active).map((el) => {
+        const rect = el.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const dx = x - sourceX;
+        const dy = y - sourceY;
+        const primary = direction === 'left' ? -dx : direction === 'right' ? dx :
+          direction === 'up' ? -dy : dy;
+        const cross = direction === 'left' || direction === 'right' ? Math.abs(dy) : Math.abs(dx);
+        return { el, primary, cross, score: primary + cross * 1.7 };
+      }).filter((item) => item.primary > 2).sort((a, b) => a.score - b.score);
+
+      if (candidates.length) {
+        candidates[0].el.focus();
+        candidates[0].el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      } else {
+        const index = elements.indexOf(active);
+        const delta = direction === 'left' || direction === 'up' ? -1 : 1;
+        const next = elements[(index + delta + elements.length) % elements.length];
+        next.focus();
+        next.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+    }
+
+    function handleJocaBackAction() {
+      const overlay = document.getElementById('combat-overlay');
+      if (overlay && !overlay.hidden) {
+        document.getElementById('close-combat').click();
+        return;
+      }
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen && activeScreen.id === 'screen-game') goBackFromGame();
+      else if (activeScreen && activeScreen.id === 'screen-worlds') {
+        switchScreen('screen-title');
+        document.querySelector('.start-button')?.focus();
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (!JOCA_TV_MODE && !JOCA_EMBEDDED) return;
+      if (event.target && ['SELECT', 'INPUT', 'TEXTAREA'].includes(event.target.tagName)) {
+        if (event.key !== 'Escape' && event.key !== 'Backspace') return;
+      }
+      const directionKeys = {
+        ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down'
+      };
+      if (directionKeys[event.key]) {
+        event.preventDefault();
+        moveJocaFocus(directionKeys[event.key]);
+      } else if (event.key === 'Escape' || event.key === 'BrowserBack' ||
+                 event.key === 'GoBack' || event.key === 'Backspace') {
+        event.preventDefault();
+        handleJocaBackAction();
+      }
+    });
+
+    // Optional physical gamepad support where the TV browser/WebView exposes Gamepad API.
+    if ((JOCA_TV_MODE || JOCA_EMBEDDED) && navigator.getGamepads) {
+      let previousButtons = [];
+      let lastAxisMove = 0;
+      function pollJocaGamepad() {
+        const pads = navigator.getGamepads();
+        const pad = pads && Array.from(pads).find(Boolean);
+        if (pad) {
+          const pressed = (index) => Boolean(pad.buttons[index] && pad.buttons[index].pressed);
+          const edge = (index) => {
+            const value = pressed(index);
+            const wasPressed = Boolean(previousButtons[index]);
+            previousButtons[index] = value;
+            return value && !wasPressed;
+          };
+          let direction = null;
+          if (edge(14) || pad.axes[0] < -0.7) direction = 'left';
+          else if (edge(15) || pad.axes[0] > 0.7) direction = 'right';
+          else if (edge(12) || pad.axes[1] < -0.7) direction = 'up';
+          else if (edge(13) || pad.axes[1] > 0.7) direction = 'down';
+          const now = performance.now();
+          if (direction && now - lastAxisMove > 220) {
+            moveJocaFocus(direction);
+            lastAxisMove = now;
+          }
+          if (edge(0)) document.activeElement?.click();
+          if (edge(1) || edge(8)) handleJocaBackAction();
+        }
+        requestAnimationFrame(pollJocaGamepad);
+      }
+      // Começar a ler já no carregamento também detecta controles conectados antes de abrir o jogo.
+      window.addEventListener('gamepadconnected', () => {
+        previousButtons = [];
+      });
+      requestAnimationFrame(pollJocaGamepad);
+    }
+  </script>
+
+  <script>
+    // Linha do tempo: registra apenas respostas corretas, com progresso local por dispositivo.
+    function renderJocaLearningTimeline() {
+      const safeDefault = { total: 0, skills: {}, words: {} };
+      let progress = safeDefault;
+      try {
+        const parsed = JSON.parse(localStorage.getItem('joca-learning-progress') || 'null');
+        if (parsed && typeof parsed === 'object') progress = {
+          ...safeDefault, ...parsed, skills: parsed.skills || {}, words: parsed.words || {}
+        };
+      } catch (_) {}
+
+      const skills = progress.skills || {};
+      const discoverModes = ['initialLetter', 'first', 'assemble', 'count'];
+      const discoverCount = discoverModes.filter((mode) => Number(skills[mode]) > 0).length;
+      const buildCount = Math.min(3, Number(skills.sentence) || 0);
+      const readCount = Math.min(3, Number(skills.reading) || 0);
+      const total = discoverCount + buildCount + readCount;
+      const percent = Math.round((total / 10) * 100);
+      const stages = [
+        { key: 'discover', complete: discoverCount >= 4, title: 'Descobrir', count: discoverCount, target: 4, status: discoverCount + '/4 habilidades' },
+        { key: 'build', complete: buildCount >= 3, title: 'Construir', count: buildCount, target: 3, status: buildCount + '/3 frases' },
+        { key: 'read', complete: readCount >= 3, title: 'Compreender', count: readCount, target: 3, status: readCount + '/3 leituras' }
+      ];
+      const activeIndex = stages.findIndex((stage) => !stage.complete);
+
+      stages.forEach((stage, index) => {
+        const item = document.querySelector('[data-stage="' + stage.key + '"]');
+        const status = document.getElementById('timeline-' + stage.key + '-status');
+        if (!item || !status) return;
+        item.classList.toggle('is-complete', stage.complete);
+        item.classList.toggle('is-current', !stage.complete && index === activeIndex);
+        if (!stage.complete && index === activeIndex) item.setAttribute('aria-current', 'step');
+        else item.removeAttribute('aria-current');
+        status.textContent = stage.complete ? 'Concluída ✓' : stage.status;
+      });
+
+      const pct = document.getElementById('timeline-percent');
+      const bar = document.getElementById('timeline-overall-bar');
+      const track = document.getElementById('timeline-overall-track');
+      if (pct) pct.textContent = percent + '%';
+      if (bar) bar.style.width = percent + '%';
+      if (track) track.setAttribute('aria-valuenow', String(total));
+      const summary = document.getElementById('timeline-summary');
+      if (summary) {
+        if (total === 0) summary.textContent = 'Sua aventura começa aqui. Acerte desafios para avançar.';
+        else if (total >= 10) summary.textContent = 'Parabéns! Você concluiu as três etapas da jornada.';
+        else summary.textContent = 'Você avançou ' + total + ' de 10 metas. Próxima etapa: ' + stages[activeIndex].title + '.';
+      }
+    }
+    window.renderJocaLearningTimeline = renderJocaLearningTimeline;
+    window.addEventListener('joca:progress-updated', renderJocaLearningTimeline);
+    window.addEventListener('storage', (event) => {
+      if (!event.key || event.key === 'joca-learning-progress') renderJocaLearningTimeline();
+    });
+    renderJocaLearningTimeline();
+  </script>
+
+  <script>
+    // Registro da versão instalável do Joca (PWA).
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(() => console.info('Joca pronto para uso como PWA.'))
+          .catch((error) => console.warn('Não foi possível registrar o modo instalável.', error));
+      });
+    }
+
+    let jocaInstallPrompt = null;
+    const jocaInstallButton = document.getElementById('install-app-button');
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      jocaInstallPrompt = event;
+      jocaInstallButton.hidden = false;
+    });
+    jocaInstallButton.addEventListener('click', async () => {
+      if (!jocaInstallPrompt) return;
+      jocaInstallPrompt.prompt();
+      await jocaInstallPrompt.userChoice;
+      jocaInstallPrompt = null;
+      jocaInstallButton.hidden = true;
+    });
+    window.addEventListener('appinstalled', () => {
+      jocaInstallPrompt = null;
+      jocaInstallButton.hidden = true;
+    });
+  </script>
+
 </body>
 </html>
