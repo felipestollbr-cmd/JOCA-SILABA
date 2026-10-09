@@ -521,11 +521,20 @@
         for (const world of worlds) {
           const card = document.createElement('div');
           card.className = `world-card world-${world.id}`;
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
+          card.setAttribute('aria-label', 'Entrar no mundo ' + (worldNames[world.id] || world.name));
           card.innerHTML = `
             <div class="world-emoji">${worldEmojis[world.id] || '🌍'}</div>
             <div class="world-card-title">${worldNames[world.id] || world.name}</div>
           `;
           card.onclick = () => loadWorld(world.id);
+          card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              loadWorld(world.id);
+            }
+          });
           worldsList.appendChild(card);
         }
       } catch (error) {
@@ -610,6 +619,9 @@
       for (const monster of regularMonsters) {
         const card = document.createElement('div');
         card.className = 'small-monster';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', 'Desafiar ' + monster.name);
         card.innerHTML = `
           <div class="small-monster-emoji">${getMonsterEmoji(monster.id)}</div>
           <div class="small-monster-name">${monster.name}</div>
@@ -617,6 +629,12 @@
           <div class="small-monster-hp">⚔️ ${monster.damage}</div>
         `;
         card.onclick = () => fightMonster(monster.id);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            fightMonster(monster.id);
+          }
+        });
         monstersGrid.appendChild(card);
       }
       
