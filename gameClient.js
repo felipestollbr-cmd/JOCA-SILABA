@@ -16,29 +16,52 @@ class GameClient {
    * Faz requisição com headers de autenticação
    */
   async request(endpoint, options = {}) {
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers
+    const method = (options.method || 'GET').toUpperCase();
+    const cacheKey = 'joca-api-cache:' + endpoint;
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    if (this.clientApiKey) headers['x-api-key'] = this.clientApiKey;
+
+    const readCached = () => {
+      if (method !== 'GET') return null;
+      try {
+        const saved = localStorage.getItem(cacheKey);
+        return saved ? JSON.parse(saved) : null;
+      } catch (_) { return null; }
     };
 
-    // Adiciona API key se disponível
-    if (this.clientApiKey) {
-      headers['x-api-key'] = this.clientApiKey;
-    }
-
     try {
-      const response = await fetch(`${this.apiUrl}${endpoint}`, {
-        ...options,
-        headers
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || `HTTP ${response.status}`);
+      let response;
+      try {
+        response = await fetch(`${this.apiUrl}${endpoint}`, { ...options, headers });
+      } catch (networkError) {
+        const cached = readCached();
+        if (cached !== null) {
+          console.info('📦 Joca: usando dados salvos para continuar offline:', endpoint);
+          return cached;
+        }
+        throw networkError;
       }
 
-      return await response.json();
+      if (!response.ok) {
+        let message = `HTTP ${response.status}`;
+        try {
+          const body = await response.json();
+          message = body.error || message;
+        } catch (_) {}
+        throw new Error(message);
+      }
+
+      const data = await response.json();
+      if (method === 'GET') {
+        try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+      }
+      return data;
     } catch (error) {
+      const cached = readCached();
+      if (cached !== null && method === 'GET') {
+        console.warn('Joca: API indisponível, usando a última resposta salva:', endpoint);
+        return cached;
+      }
       console.error(`Erro na requisição ${endpoint}:`, error);
       throw error;
     }
