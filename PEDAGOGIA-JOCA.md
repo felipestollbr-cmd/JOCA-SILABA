@@ -18,10 +18,11 @@ A página pública do Sistema Positivo de Ensino descreve a alfabetização nos 
 ## Trilhas do jogo
 
 ### 1. Descobrir palavras
-- Reconhecer a letra inicial da palavra.
+- Reconhecer a letra inicial e relacionar a letra escrita ao começo da palavra falada.
 - Identificar a sílaba inicial.
 - Montar a palavra com sílabas móveis.
 - Contar e segmentar as sílabas.
+- Receber feedback explicativo e poder tentar novamente sem perder vida quando errar.
 
 ### 2. Construir palavras e frases
 Inclui as atividades anteriores e acrescenta a organização de palavras embaralhadas numa frase, observando ordem, espaçamento e pontuação final.
@@ -49,7 +50,7 @@ Os códigos e a redação integral devem ser conferidos no documento oficial da 
 
 ## Limites e próximos incrementos
 
-Esta versão inicial trabalha com palavras de animais, frases curtas e perguntas literais. Para uma proposta mais completa de alfabetização e letramento, as próximas iterações devem incluir, com progressão revisada por educador:
+Esta versão inicial trabalha com palavras de animais, identificação de letra inicial, divisão silábica revisada, frases curtas e fichas informativas com perguntas literais. A divisão de sílabas foi conferida para que a montagem das partes reconstrua a palavra inteira. Para uma proposta mais completa de alfabetização e letramento, as próximas iterações devem incluir, com progressão revisada por educador:
 
 1. correspondências grafofonêmicas e contrastes sonoros com palavras cuidadosamente selecionadas;
 2. leitura de gêneros reais curtos (bilhete, lista, aviso, legenda e instrução), considerando para quem o texto foi escrito e para quê;
