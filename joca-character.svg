@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" role="img" aria-labelledby="title desc">
+  <title id="title">Joca, o aventureiro das sílabas</title>
+  <desc id="desc">Menino sorridente de cabelo castanho, camiseta azul e mochila coral, pronto para explorar e aprender.</desc>
+  <defs>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#41b4f5"/><stop offset="1" stop-color="#2368c5"/></linearGradient>
+    <linearGradient id="backpack" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9b4b"/><stop offset="1" stop-color="#ed513d"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#e7a16e"/><stop offset="1" stop-color="#bf7049"/></linearGradient>
+    <linearGradient id="pants" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#31558d"/><stop offset="1" stop-color="#203b6b"/></linearGradient>
+  </defs>
+  <ellipse cx="180" cy="457" rx="91" ry="14" fill="#101b3b" opacity=".18"/>
+  <!-- Mochila de explorador -->
+  <path d="M112 207 Q100 213 100 244 L105 300 Q107 317 124 315 L144 308 L145 225Z" fill="url(#backpack)" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M110 255 Q124 244 140 255 L140 286 Q124 296 111 285Z" fill="#ffd45a" stroke="#263557" stroke-width="4"/>
+  <path d="M129 189 Q105 193 105 223 L118 274" fill="none" stroke="#f7a64b" stroke-width="12" stroke-linecap="round"/>
+  <!-- Pernas e tênis -->
+  <path d="M146 315 L143 382 Q145 396 163 397 L178 393 L180 320Z" fill="url(#pants)" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M197 316 L204 380 Q207 395 225 393 L239 386 L225 311Z" fill="url(#pants)" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M140 385 Q154 379 175 389 L183 409 Q181 421 164 420 L124 418 Q116 410 125 401Z" fill="#f36d4d" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M204 383 Q221 378 239 385 L253 405 Q253 417 237 418 L200 416 Q191 409 196 398Z" fill="#f36d4d" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M126 408 L177 410 M199 407 L247 408" stroke="#fff1c9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M147 400 L159 401 M216 399 L229 399" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Braços -->
+  <path d="M130 206 Q111 215 96 196 L75 168" fill="none" stroke="#263557" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M130 206 Q111 215 96 196 L75 168" fill="none" stroke="url(#skin)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M73 170 Q53 163 48 146 Q45 137 52 134 Q59 132 64 142 L62 124 Q62 115 70 115 Q78 116 78 126 L83 116 Q89 110 95 117 Q98 122 91 133 L87 151 Q84 167 73 170Z" fill="url(#skin)" stroke="#263557" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M223 207 Q243 222 245 244 L235 273" fill="none" stroke="#263557" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M223 207 Q243 222 245 244 L235 273" fill="none" stroke="url(#skin)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M235 270 Q235 282 246 282 Q257 281 257 270 L252 249" fill="none" stroke="url(#skin)" stroke-width="18" stroke-linecap="round"/>
+  <!-- Pescoço e camiseta -->
+  <path d="M156 157 L155 190 Q176 205 198 188 L197 157Z" fill="url(#skin)" stroke="#263557" stroke-width="4"/>
+  <path d="M127 194 Q141 177 160 178 Q178 193 198 178 Q223 184 232 207 L225 304 Q180 327 133 304 L121 221 Q119 206 127 194Z" fill="url(#shirt)" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M158 181 Q178 194 198 181" fill="none" stroke="#263557" stroke-width="5" stroke-linecap="round"/>
+  <path d="M131 204 L138 297 M220 205 L215 293" fill="none" stroke="#8bddff" stroke-width="4" opacity=".6" stroke-linecap="round"/>
+  <!-- Emblema J -->
+  <circle cx="179" cy="241" r="26" fill="#ffd34d" stroke="#263557" stroke-width="4"/>
+  <path d="M188 225 L172 246 L182 246 L172 261 L193 237 L182 237Z" fill="#f26842" stroke="#263557" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Cabeça e orelhas -->
+  <ellipse cx="116" cy="113" rx="13" ry="20" fill="url(#skin)" stroke="#263557" stroke-width="4"/>
+  <ellipse cx="239" cy="112" rx="13" ry="20" fill="url(#skin)" stroke="#263557" stroke-width="4"/>
+  <path d="M115 91 Q112 54 140 43 Q164 27 187 40 Q212 31 232 56 Q249 75 239 115 L229 145 Q219 171 179 176 Q143 173 128 148 Q115 125 115 91Z" fill="url(#skin)" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Cabelo cacheado -->
+  <path d="M113 111 Q98 86 111 64 Q119 47 137 49 Q147 27 168 35 Q184 22 201 38 Q221 31 232 50 Q251 57 247 81 Q247 100 238 116 L229 101 Q217 90 203 87 Q181 96 162 84 Q143 103 127 119Z" fill="#4b2b29" stroke="#263557" stroke-width="5" stroke-linejoin="round"/>
+  <circle cx="119" cy="67" r="15" fill="#5a332b" stroke="#263557" stroke-width="4"/>
+  <circle cx="144" cy="47" r="16" fill="#5a332b" stroke="#263557" stroke-width="4"/>
+  <circle cx="169" cy="40" r="15" fill="#5a332b" stroke="#263557" stroke-width="4"/>
+  <circle cx="196" cy="44" r="15" fill="#5a332b" stroke="#263557" stroke-width="4"/>
+  <circle cx="222" cy="59" r="15" fill="#5a332b" stroke="#263557" stroke-width="4"/>
+  <!-- Rosto -->
+  <path d="M139 103 Q149 97 159 103 M199 103 Q210 97 219 103" fill="none" stroke="#4b2b29" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="151" cy="116" rx="6" ry="9" fill="#263557"/>
+  <ellipse cx="208" cy="116" rx="6" ry="9" fill="#263557"/>
+  <circle cx="153" cy="113" r="2.1" fill="#fff"/>
+  <circle cx="210" cy="113" r="2.1" fill="#fff"/>
+  <ellipse cx="132" cy="135" rx="10" ry="6" fill="#f38c75" opacity=".7"/>
+  <ellipse cx="226" cy="135" rx="10" ry="6" fill="#f38c75" opacity=".7"/>
+  <path d="M172 127 Q176 132 181 127" fill="none" stroke="#aa5d42" stroke-width="3" stroke-linecap="round"/>
+  <path d="M154 142 Q179 166 207 140 Q200 163 180 164 Q161 162 154 142Z" fill="#fff7e8" stroke="#263557" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Detalhes aventureiros -->
+  <path d="M232 208 Q220 219 220 239" fill="none" stroke="#ffd34d" stroke-width="6" stroke-linecap="round"/>
+  <path d="M91 224 L103 235 M245 303 L255 310" stroke="#ffd34d" stroke-width="5" stroke-linecap="round"/>
+  <path d="M77 57 L82 70 L95 72 L85 81 L88 94 L77 87 L66 94 L69 81 L59 72 L72 70Z" fill="#ffd34d" stroke="#fff1bd" stroke-width="2"/>
+  <path d="M275 145 L279 154 L289 156 L281 163 L283 173 L275 168 L267 173 L269 163 L261 156 L271 154Z" fill="#ffd34d" stroke="#fff1bd" stroke-width="2"/>
+</svg>
