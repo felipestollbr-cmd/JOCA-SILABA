@@ -323,6 +323,82 @@
     .world-desert { background: linear-gradient(135deg, #F39C12, #d68910); }
     .world-arctic { background: linear-gradient(135deg, #ECF0F1, #bdc3c7); color: #000 !important; }
     .world-forest { background: linear-gradient(135deg, #27AE60, #1e8449); }
+
+    /* ═══ COMBATE INTERATIVO ═══ */
+    #combat-overlay[hidden] { display: none !important; }
+    .combat-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; overflow-y: auto;
+      background: rgba(4, 8, 22, .88); backdrop-filter: blur(8px);
+    }
+    .combat-card {
+      width: min(760px, 100%); max-height: 96vh; overflow-y: auto;
+      color: #fff; background: linear-gradient(145deg, #202f52, #111a32);
+      border: 3px solid #f8b800; border-radius: 22px; padding: 22px;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      font-family: 'Fredoka One', cursive;
+    }
+    .combat-heading { display:flex; align-items:center; justify-content:space-between; gap:12px;
+      color:#f8b800; font-size:clamp(.8rem,2.5vw,1.15rem); margin-bottom:18px; }
+    .combat-close { border:0; border-radius:50%; width:38px; height:38px; cursor:pointer;
+      background:#3a496b; color:#fff; font-size:1.5rem; }
+    .duel-row { display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center; }
+    .duel-person { min-width:0; text-align:center; padding:14px 10px; border-radius:15px;
+      background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.14); }
+    .duel-emoji { font-size:clamp(2.8rem,8vw,4.5rem); margin:4px 0 10px; }
+    .duel-label { font-size:clamp(.75rem,2.7vw,1rem); line-height:1.4; overflow-wrap:anywhere; }
+    .health-track { height:13px; margin:10px 0 6px; border-radius:99px; overflow:hidden; background:#101523;
+      border:1px solid rgba(255,255,255,.25); }
+    .health-fill { height:100%; width:100%; transition:width .3s ease; background:linear-gradient(90deg,#43d17d,#a4f25c); }
+    .health-fill.enemy { background:linear-gradient(90deg,#ff594f,#ffad42); }
+    .health-label { color:#d6e1f6; font-size:.78rem; }
+    .versus { color:#f8b800; font-family:'Press Start 2P',monospace; font-size:.8rem; }
+    .challenge-panel { margin-top:18px; border-radius:16px; background:rgba(0,0,0,.19); padding:18px; }
+    .challenge-badge { display:inline-block; border-radius:999px; background:#f8b800; color:#17213a;
+      font-size:.72rem; padding:7px 11px; margin-bottom:10px; }
+    .combat-instruction { font-size:clamp(1rem,3vw,1.35rem); line-height:1.4; margin:4px 0 8px; }
+    .combat-word { color:#9ce7ff; font-size:1.05rem; margin-bottom:14px; }
+    .syllable-options, .syllable-answer { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:9px; min-height:44px; }
+    .syllable-chip { border:2px solid #70b8ff; border-radius:12px; padding:12px 16px; min-width:54px;
+      color:#fff; background:#244575; font:inherit; font-size:1.05rem; cursor:pointer; box-shadow:0 3px 0 #142c50; }
+    .syllable-chip:hover:not(:disabled) { transform:translateY(-2px); background:#32619c; }
+    .syllable-chip:disabled { opacity:.4; cursor:default; }
+    .syllable-chip.answer-chip { color:#13203a; background:#f8b800; border-color:#ffda5d; box-shadow:0 3px 0 #b77c00; }
+    .answer-label { text-align:center; margin:17px 0 8px; font-size:.8rem; color:#c8d6f5; }
+    .answer-empty { color:#91a3c8; font-size:.85rem; }
+    .combat-feedback { min-height:28px; margin:14px 0; text-align:center; font-size:1rem; line-height:1.5; color:#fff; }
+    .combat-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+    .combat-action { padding:12px 16px; border:0; border-radius:10px; cursor:pointer; font:inherit; font-size:.85rem; }
+    .combat-action.secondary { background:#334466; color:#fff; }
+    .combat-action.primary { background:linear-gradient(135deg,#f8b800,#ff8137); color:#1a2030; font-weight:bold; }
+    .combat-action:disabled { opacity:.45; cursor:not-allowed; }
+    .combat-xp { margin-top:16px; text-align:center; color:#ffd95d; font-size:.9rem; }
+    @media (max-width: 600px) {
+      .title-game { font-size:clamp(1.15rem,5vw,2rem); }
+      .title-subtitle { font-size:.65rem; line-height:1.7; padding:0 14px; }
+      .start-button { padding:14px 20px; font-size:.72rem; }
+      #screen-worlds { overflow-y:auto; justify-content:flex-start; padding:28px 0; }
+      .worlds-container { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:14px; }
+      .world-card { aspect-ratio:auto; min-height:125px; border-width:3px; font-size:.82rem; }
+      .world-emoji { font-size:2.1rem; }
+      #screen-worlds h1 { font-size:1.05rem !important; text-align:center; margin:0 12px 14px !important; }
+      .game-header { padding:12px; gap:10px; }
+      .world-title { font-size:.72rem; letter-spacing:0; }
+      .back-button { font-size:.62rem; }
+      .game-content { padding:14px 10px; }
+      .monster-section { padding:16px 12px; margin:8px 0; }
+      .combat-overlay { padding:8px; }
+      .combat-card { padding:13px; border-radius:16px; }
+      .duel-row { gap:6px; }
+      .duel-person { padding:10px 5px; }
+      .health-track { height:10px; }
+      .challenge-panel { padding:12px 8px; }
+      .syllable-chip { padding:10px 12px; min-width:46px; }
+      .combat-actions { gap:7px; }
+      .combat-action { padding:11px 10px; font-size:.78rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -332,21 +408,21 @@
       <div class="title-game">🎮 JOCA 🎮</div>
       <div class="title-game">SÍLABA AVENTURA</div>
       <div class="title-subtitle">Derrote monstros dominando as sílabas!</div>
-      <button class="start-button" onclick="showWorlds()">START GAME</button>
+      <button class="start-button" onclick="showWorlds()">COMEÇAR A AVENTURA</button>
     </div>
   </div>
 
   <!-- WORLD SELECT SCREEN -->
   <div id="screen-worlds" class="screen">
-    <h1 style="color: #f8b800; margin-bottom: 30px; font-size: 2rem;">CHOOSE YOUR WORLD</h1>
+    <h1 style="color: #f8b800; margin-bottom: 30px; font-size: 2rem;">ESCOLHA SEU MUNDO</h1>
     <div class="worlds-container" id="worlds-list"></div>
   </div>
 
   <!-- GAME SCREEN -->
   <div id="screen-game" class="screen">
     <div class="game-header">
-      <div class="world-title" id="game-world-title">WORLD</div>
-      <button class="back-button" onclick="showWorlds()">← BACK</button>
+      <div class="world-title" id="game-world-title">MUNDO</div>
+      <button class="back-button" onclick="showWorlds()">← MUNDOS</button>
     </div>
     <div class="game-content" id="game-content">
       <div class="loading">Carregando dados...</div>
@@ -356,7 +432,7 @@
   <script src="/gameClient.js"></script>
   <script>
     // Config
-    const API_URL = 'http://localhost:3001';
+    const API_URL = window.JOCA_API_URL || 'https://joca-silaba.up.railway.app';
     const gameClient = new GameClient(API_URL);
     
     const worldEmojis = {
@@ -417,7 +493,7 @@
       currentWorldId = worldId;
       switchScreen('screen-game');
       
-      document.getElementById('game-world-title').textContent = worldNames[worldId] || 'World';
+      document.getElementById('game-world-title').textContent = worldNames[worldId] || 'Mundo';
       document.getElementById('game-content').innerHTML = '<div class="loading">Carregando mundo...</div>';
 
       try {
@@ -444,11 +520,11 @@
       bossSection.className = 'monster-section';
       bossSection.style.borderColor = '#f44';
       bossSection.innerHTML = `
-        <div class="monster-title" style="color: #f44;">👑 BOSS DO MUNDO 👑</div>
+        <div class="monster-title" style="color: #f44;">👑 CHEFE DO MUNDO 👑</div>
         <div class="monster-emoji">${getMonsterEmoji(boss.id)}</div>
         <div class="monster-info">
           <strong>${boss.name}</strong>
-          <div class="boss-warning">⚡ MUITO PERIGOSO! ⚡</div>
+          <div class="boss-warning">⚡ DESAFIO SUPREMO! ⚡</div>
           <div class="monster-stat">
             <span class="stat-label">Vida:</span>
             <span class="stat-value">${boss.health} HP</span>
@@ -470,7 +546,7 @@
             <span class="stat-value">${boss.score} XP</span>
           </div>
         </div>
-        <button class="fight-button" onclick="fightBoss('${boss.id}')">FIGHT BOSS!</button>
+        <button class="fight-button" onclick="fightBoss('${boss.id}')">DESAFIAR CHEFE!</button>
       `;
       content.appendChild(bossSection);
 
@@ -504,45 +580,71 @@
     // Get emoji for monster
     function getMonsterEmoji(monsterId) {
       const emojis = {
-        'lion': '🦁', 'monkey': '🐵', 'zebra': '🦓',
-        'snake': '🐍', 'jaguar': '🐆', 'parrot': '🦜',
-        'shark': '🦈', 'octopus': '🐙', 'jellyfish': '🪼',
-        'scorpion': '🦂', 'camel': '🐪', 'lizard': '🦎',
-        'polar_bear': '🐻‍❄️', 'penguin': '🐧', 'seal': '🦭',
-        'wolf': '🐺', 'bear': '🐻', 'fox': '🦊'
+        'leao': '🦁', 'macaco': '🐵', 'zebra': '🦓',
+        'cobra': '🐍', 'onca': '🐆', 'papagaio': '🦜',
+        'tubarao': '🦈', 'polvo': '🐙', 'agua_viva': '🪼',
+        'escorpiao': '🦂', 'camelo': '🐪', 'lagarto': '🦎',
+        'urso_polar': '🐻‍❄️', 'pinguim': '🐧', 'foca': '🦭',
+        'lobo': '🐺', 'urso': '🐻', 'raposa': '🦊'
       };
       return emojis[monsterId] || '👹';
     }
 
-    // Fight monster
+    // Combates interativos: os desafios são controlados por combat.js.
     function fightMonster(monsterId) {
-      const monster = currentWorldData.monsters.find(m => m.id === monsterId);
-      alert(`⚔️ DESAFIO DE SÍLABAS ⚔️\n\n` +
-        `${monster.name}\n\n` +
-        `❤️ Vida: ${monster.health}\n` +
-        `⚔️ Poder: ${monster.damage}\n` +
-        `💨 Velocidade: ${monster.speed}\n\n` +
-        `📚 Palavra-Chave: ${monster.vocab.word}\n` +
-        `📖 Pronúncia: ${monster.vocab.pronunciation}\n\n` +
-        `🎯 Ganho: ${monster.score} XP`);
+      const monster = currentWorldData && currentWorldData.monsters.find(m => m.id === monsterId);
+      if (monster) startJocaCombat(monster, false);
     }
 
-    // Fight boss
     function fightBoss(bossId) {
-      const boss = currentWorldData.monsters.find(m => m.id === bossId);
-      alert(`👑 CHEFE SUPREMO! 👑\n\n` +
-        `${boss.name}\n\n` +
-        `❤️ Vida: ${boss.health} (EXTREMA!)\n` +
-        `⚔️ Poder: ${boss.damage} (DEVASTADOR!)\n` +
-        `💨 Velocidade: ${boss.speed}\n\n` +
-        `📚 Palavra-Mestre: ${boss.vocab.word}\n` +
-        `🎯 Ganho: ${boss.score} XP (ENORME!)\n\n` +
-        `⚠️ Comportamento: ${boss.behavior}\n` +
-        `💥 Ataques: ${boss.attacks.join(', ')}`);
+      const boss = currentWorldData && currentWorldData.monsters.find(m => m.id === bossId);
+      if (boss) startJocaCombat(boss, true);
     }
 
     // Initialize
     console.log('🎮 Sílaba Aventura com o Joca carregado! Clique em START para começar.');
   </script>
+
+  <!-- COMBATE EDUCATIVO INTERATIVO -->
+  <div id="combat-overlay" class="combat-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="combat-title">
+    <section class="combat-card">
+      <header class="combat-heading">
+        <span id="combat-title">⚔️ DESAFIO DE SÍLABAS</span>
+        <button id="close-combat" class="combat-close" type="button" aria-label="Fechar batalha">×</button>
+      </header>
+      <div class="duel-row">
+        <article class="duel-person">
+          <div class="duel-emoji">🧒🏽</div>
+          <div class="duel-label">JOCA</div>
+          <div class="health-track"><div id="player-health-bar" class="health-fill"></div></div>
+          <div id="player-health-label" class="health-label">100/100 HP</div>
+        </article>
+        <div class="versus">VS</div>
+        <article class="duel-person">
+          <div id="combat-monster-emoji" class="duel-emoji">👹</div>
+          <div id="combat-monster-name" class="duel-label">MONSTRO</div>
+          <div class="health-track"><div id="monster-health-bar" class="health-fill enemy"></div></div>
+          <div id="monster-health-label" class="health-label">0/0 HP</div>
+        </article>
+      </div>
+      <div class="challenge-panel">
+        <div id="combat-challenge-badge" class="challenge-badge">RONDA DE SÍLABAS</div>
+        <h2 id="combat-instruction" class="combat-instruction">Prepare-se para o desafio!</h2>
+        <p id="combat-word" class="combat-word"></p>
+        <div id="syllable-options" class="syllable-options"></div>
+        <div class="answer-label">SUA RESPOSTA</div>
+        <div id="syllable-answer" class="syllable-answer"><span class="answer-empty">Escolha as sílabas acima</span></div>
+        <p id="combat-feedback" class="combat-feedback" aria-live="polite"></p>
+        <div class="combat-actions">
+          <button id="clear-answer" class="combat-action secondary" type="button">Limpar</button>
+          <button id="check-answer" class="combat-action primary" type="button">Conferir resposta</button>
+          <button id="next-round" class="combat-action primary" type="button" hidden>Próxima pergunta</button>
+        </div>
+        <div id="combat-xp" class="combat-xp">⭐ XP conquistado: 0</div>
+      </div>
+    </section>
+  </div>
+  <script src="/combat.js"></script>
+
 </body>
 </html>
