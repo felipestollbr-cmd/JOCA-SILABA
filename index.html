@@ -627,11 +627,12 @@
       <div class="learning-path-wrap">
         <label class="learning-path-label" for="learning-path">ESCOLHA SUA TRILHA</label>
         <select id="learning-path" class="learning-path-select" aria-describedby="learning-path-description">
+          <option value="adaptativa">✨ Trilha adaptativa (recomendada)</option>
           <option value="descobrir">1 · Descobrir palavras</option>
           <option value="construir">2 · Construir frases</option>
           <option value="compreender">3 · Ler e compreender</option>
         </select>
-        <p id="learning-path-description" class="learning-path-description">Letras, sílabas e formação de palavras. Sem cronômetro, com dicas para aprender.</p>
+        <p id="learning-path-description" class="learning-path-description">O Joca escolhe desafios com base nas tentativas e nas habilidades que precisam de mais prática.</p>
       </div>
       <section id="learning-timeline" class="learning-timeline" role="region" aria-labelledby="timeline-title">
         <div class="timeline-top">
@@ -641,7 +642,7 @@
           </div>
           <strong id="timeline-percent" class="timeline-percent">0%</strong>
         </div>
-        <div class="timeline-overall-track" role="progressbar" aria-label="Progresso total de aprendizagem" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="timeline-overall-track">
+        <div class="timeline-overall-track" role="progressbar" aria-label="Progresso total de aprendizagem" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" id="timeline-overall-track">
           <div id="timeline-overall-bar" class="timeline-overall-fill"></div>
         </div>
         <ol class="timeline-steps" aria-label="Etapas da aprendizagem">
@@ -649,19 +650,19 @@
             <span class="timeline-node" aria-hidden="true">1</span>
             <h3>Descobrir</h3>
             <p>Letras e sílabas</p>
-            <span id="timeline-discover-status" class="timeline-status">0/4 habilidades</span>
+            <span id="timeline-discover-status" class="timeline-status">0/4 habilidades dominadas</span>
           </li>
           <li class="timeline-step" data-stage="build">
             <span class="timeline-node" aria-hidden="true">2</span>
             <h3>Construir</h3>
             <p>Palavras e frases</p>
-            <span id="timeline-build-status" class="timeline-status">0/3 frases</span>
+            <span id="timeline-build-status" class="timeline-status">Ainda praticando</span>
           </li>
           <li class="timeline-step" data-stage="read">
             <span class="timeline-node" aria-hidden="true">3</span>
             <h3>Compreender</h3>
             <p>Ler e encontrar informações</p>
-            <span id="timeline-read-status" class="timeline-status">0/3 leituras</span>
+            <span id="timeline-read-status" class="timeline-status">Ainda praticando</span>
           </li>
         </ol>
         <p class="timeline-footnote">Seu progresso fica salvo neste dispositivo.</p>
@@ -937,6 +938,7 @@
     </section>
   </div>
   <script src="/learning-content.js"></script>
+  <script src="/learning-progress.js"></script>
   <script src="/combat.js"></script>
   <script>
     // Preferência local: a trilha fica guardada neste navegador.
@@ -1100,31 +1102,16 @@
   </script>
 
   <script>
-    // Linha do tempo: registra apenas respostas corretas, com progresso local por dispositivo.
+    // Timeline baseada em evidências por habilidade, itens distintos e histórico de tentativas.
     function renderJocaLearningTimeline() {
-      const safeDefault = { total: 0, skills: {}, words: {} };
-      let progress = safeDefault;
-      try {
-        const parsed = JSON.parse(localStorage.getItem('joca-learning-progress') || 'null');
-        if (parsed && typeof parsed === 'object') progress = {
-          ...safeDefault, ...parsed, skills: parsed.skills || {}, words: parsed.words || {}
-        };
-      } catch (_) {}
-
-      const skills = progress.skills || {};
-      const discoverModes = ['initialLetter', 'first', 'assemble', 'count'];
-      const discoverCount = discoverModes.filter((mode) => Number(skills[mode]) > 0).length;
-      const buildCount = Math.min(3, Number(skills.sentence) || 0);
-      const readCount = Math.min(3, Number(skills.reading) || 0);
-      const total = discoverCount + buildCount + readCount;
-      const percent = Math.round((total / 10) * 100);
+      if (!window.JOCA_PROGRESS) return;
+      const data = window.JOCA_PROGRESS.timeline();
       const stages = [
-        { key: 'discover', complete: discoverCount >= 4, title: 'Descobrir', count: discoverCount, target: 4, status: discoverCount + '/4 habilidades' },
-        { key: 'build', complete: buildCount >= 3, title: 'Construir', count: buildCount, target: 3, status: buildCount + '/3 frases' },
-        { key: 'read', complete: readCount >= 3, title: 'Compreender', count: readCount, target: 3, status: readCount + '/3 leituras' }
+        { key: 'discover', title: 'Descobrir', count: data.stages[0].count, target: data.stages[0].target, complete: data.stages[0].complete },
+        { key: 'build', title: 'Construir', count: data.stages[1].count, target: data.stages[1].target, complete: data.stages[1].complete },
+        { key: 'read', title: 'Compreender', count: data.stages[2].count, target: data.stages[2].target, complete: data.stages[2].complete }
       ];
       const activeIndex = stages.findIndex((stage) => !stage.complete);
-
       stages.forEach((stage, index) => {
         const item = document.querySelector('[data-stage="' + stage.key + '"]');
         const status = document.getElementById('timeline-' + stage.key + '-status');
@@ -1133,20 +1120,33 @@
         item.classList.toggle('is-current', !stage.complete && index === activeIndex);
         if (!stage.complete && index === activeIndex) item.setAttribute('aria-current', 'step');
         else item.removeAttribute('aria-current');
-        status.textContent = stage.complete ? 'Concluída ✓' : stage.status;
+        if (stage.complete) {
+          status.textContent = 'Consolidada ✓';
+        } else if (stage.key === 'discover') {
+          status.textContent = stage.count + '/' + stage.target + ' habilidades consolidadas';
+        } else {
+          const skill = stage.key === 'build' ? data.stats.sentence : data.stats.reading;
+          status.textContent = skill.uniqueItems + ' itens diferentes · ' + Math.round(skill.accuracy * 100) + '% de acerto';
+        }
       });
-
       const pct = document.getElementById('timeline-percent');
       const bar = document.getElementById('timeline-overall-bar');
       const track = document.getElementById('timeline-overall-track');
-      if (pct) pct.textContent = percent + '%';
-      if (bar) bar.style.width = percent + '%';
-      if (track) track.setAttribute('aria-valuenow', String(total));
+      if (pct) pct.textContent = data.percent + '%';
+      if (bar) bar.style.width = data.percent + '%';
+      if (track) {
+        track.setAttribute('aria-valuemax', String(data.target));
+        track.setAttribute('aria-valuenow', String(data.total));
+      }
       const summary = document.getElementById('timeline-summary');
       if (summary) {
-        if (total === 0) summary.textContent = 'Sua aventura começa aqui. Acerte desafios para avançar.';
-        else if (total >= 10) summary.textContent = 'Parabéns! Você concluiu as três etapas da jornada.';
-        else summary.textContent = 'Você avançou ' + total + ' de 10 metas. Próxima etapa: ' + stages[activeIndex].title + '.';
+        if (data.attempts === 0) {
+          summary.textContent = 'Sua aventura começa aqui. O Joca vai observar suas tentativas para sugerir o próximo desafio.';
+        } else if (data.percent === 100) {
+          summary.textContent = 'Ótimo trabalho! Há evidências consistentes nas habilidades desta trilha. Continue praticando em novas palavras e textos.';
+        } else {
+          summary.textContent = 'Próximo desafio sugerido: ' + data.recommendedLabel + '. Histórico de ' + data.attempts + ' tentativas neste dispositivo.';
+        }
       }
     }
     window.renderJocaLearningTimeline = renderJocaLearningTimeline;
@@ -1155,6 +1155,32 @@
       if (!event.key || event.key === 'joca-learning-progress') renderJocaLearningTimeline();
     });
     renderJocaLearningTimeline();
+
+    // Descrições das trilhas, mantendo seleção manual opcional.
+    const learningPathSelect = document.getElementById('learning-path');
+    const learningPathDescriptions = {
+      adaptativa: 'O Joca escolhe desafios com base nas tentativas e nas habilidades que precisam de mais prática.',
+      descobrir: 'Letras, sílabas e formação de palavras. Sem cronômetro, com dicas para aprender.',
+      construir: 'Monte palavras e organize frases com sentido.',
+      compreender: 'Leia textos curtos e encontre informações importantes.'
+    };
+    try {
+      const savedPath = localStorage.getItem('joca-learning-path');
+      if (savedPath && learningPathDescriptions[savedPath]) learningPathSelect.value = savedPath;
+      else {
+        learningPathSelect.value = 'adaptativa';
+        localStorage.setItem('joca-learning-path', 'adaptativa');
+      }
+      learningPathSelect.addEventListener('change', () => {
+        localStorage.setItem('joca-learning-path', learningPathSelect.value);
+        document.getElementById('learning-path-description').textContent =
+          learningPathDescriptions[learningPathSelect.value];
+      });
+      document.getElementById('learning-path-description').textContent =
+        learningPathDescriptions[learningPathSelect.value];
+    } catch (error) {
+      console.warn('A preferência da trilha não pôde ser salva neste dispositivo.', error);
+    }
   </script>
 
   <script>
